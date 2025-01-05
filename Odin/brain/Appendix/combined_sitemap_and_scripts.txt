@@ -1,0 +1,1202 @@
+No comments # in code, don't print the site map. Only show corrected script. Sitemap of Directory: Odin 2
+==================================================
+
+[Folder] .
+--------------------------------------------------
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\config.json
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\config.py
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\engine.py
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\ODIN.bat
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\__init__.py
+
+[Folder] brain
+--------------------------------------------------
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\agenticreason.py
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\ai_memory.py
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\conversation_manager.py
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\file_picker.py
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\init.py
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\memory_handler.py
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\typestreaming.py
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\web_agent.py
+
+[Folder] brain\Appendix
+--------------------------------------------------
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\Appendix\append_scripts.py
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\Appendix\launch_project_over_view.bat
+
+[Folder] brain\__pycache__
+--------------------------------------------------
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\__pycache__\agenticreason.cpython-311.pyc
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\__pycache__\ai_memory.cpython-311.pyc
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\__pycache__\context_tree.cpython-311.pyc
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\__pycache__\conversation_manager.cpython-311.pyc
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\__pycache__\file_picker.cpython-311.pyc
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\__pycache__\manager.cpython-311.pyc
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\__pycache__\memory_handler.cpython-311.pyc
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\__pycache__\web_agent.cpython-311.pyc
+
+[Folder] __pycache__
+--------------------------------------------------
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\__pycache__\config.cpython-311.pyc
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\__pycache__\dependencies.cpython-311.pyc
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\__pycache__\engine.cpython-311.pyc
+
+==================================================
+
+Script Contents
+==================================================
+
+# START OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\config.py
+import os
+import json
+
+config_path = os.path.join(os.path.dirname(__file__), 'config.json')
+with open(config_path, 'r', encoding='utf-8') as config_file:
+    config = json.load(config_file)
+
+OPEN_ROUTER_API_KEY = config['OPEN_ROUTER_API_KEY']
+MODEL_NAME = config['MODEL_NAME']
+# END OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\config.py
+
+
+# START OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\engine.py
+import customtkinter as ctk
+from gui.app import run_gui_wrapper
+from brain.ai_memory import conversation_manager
+from brain.agenticreason import AgenticReasoner
+from config import OPEN_ROUTER_API_KEY, MODEL_NAME
+
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("blue")
+
+# Set the OpenRouter API key and model name
+conversation_manager.set_openrouter_api_key(OPEN_ROUTER_API_KEY)
+conversation_manager.set_model_name(MODEL_NAME)
+
+agentic_reasoner = AgenticReasoner(api_key=OPEN_ROUTER_API_KEY, model_name=MODEL_NAME)
+
+def run_engine():
+    root = ctk.CTk()
+    root.title("Odin")
+
+    screen_width = root.winfo_screenwidth()
+    screen_height = root.winfo_screenheight()
+
+    window_width = int(screen_width * 0.25)
+    window_height = int(screen_height * 0.85)
+
+    window_x = (screen_width - window_width) // 2
+    window_y = (screen_height - window_height) // 2
+
+    root.geometry(f"{window_width}x{window_height}+{window_x}+{window_y}")
+    root.configure(fg_color="#000000")
+
+    container = ctk.CTkFrame(root, fg_color="#000000", border_width=0)
+    container.pack(padx=20, pady=20, fill=ctk.BOTH, expand=True)
+
+    # Pass the ChatbotUI instance to the ConversationManager
+    chatbot_ui = run_gui_wrapper(container)
+    conversation_manager.chatbot_ui = chatbot_ui  # Ensure this line is present
+
+    root.mainloop()
+
+if __name__ == "__main__":
+    run_engine()
+# END OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\engine.py
+
+
+# START OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\__init__.py
+
+# END OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\__init__.py
+
+
+# START OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\agenticreason.py
+import os
+import json
+import logging
+import re
+from openai import OpenAI as Client
+from .conversation_manager import ConversationManager
+from .memory_handler import MemoryHandler
+
+# Set up logging with timestamp and level
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
+)
+
+class AgenticReasoner:
+    def __init__(self, api_key, model_name="gpt-4"):
+        """
+        Initialize the Agentic Reasoner with an API key and model name.
+        """
+        self.OPEN_ROUTER_API_KEY = api_key
+        self.MODEL_NAME = model_name
+        self.client = Client(
+            base_url="https://openrouter.ai/api/v1",
+            api_key=self.OPEN_ROUTER_API_KEY,
+        )
+        self.conversation_manager = ConversationManager()
+        self.memory_handler = MemoryHandler(self.conversation_manager.memory_dir)
+        self.role = None  # Initialize role as None, to be set dynamically
+        logging.info("Agentic Reasoner initialized.")
+
+    def is_url(self, text):
+        """
+        Check if the input text is a URL using a regular expression.
+        """
+        # Regular expression to detect URLs
+        url_pattern = re.compile(
+            r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+        )
+        return bool(url_pattern.search(text))
+
+    def process_query(self, user_message):
+        """
+        Process the user query and generate a response using the AI model.
+        """
+        # Check if the user message is a URL
+        if self.is_url(user_message):
+            # Log that a URL was detected
+            logging.info("1 URL detected")
+
+            # Acknowledge the URL submission with a specific response
+            response_message = "That's some interesting info!"
+            self.conversation_manager.save_conversation(
+                f"User: {user_message}\nAI: {response_message}",
+                self.conversation_manager.generate_bulleted_summary(response_message),
+                self.memory_handler.sentence_to_vec(response_message),
+                self.role
+            )
+            return response_message
+
+        # If it's not a URL, proceed with normal query processing
+        # Retrieve previous conversations for context
+        previous_conversations = self.conversation_manager.get_previous_conversations()
+        if previous_conversations is None:  # Ensure previous_conversations is not None
+            previous_conversations = []
+
+        context_messages = [{"role": "system", "content": "You are an AI assistant."}]
+        for conv in previous_conversations:
+            context_messages.append({"role": "user", "content": conv["user_message"]})
+            context_messages.append({"role": "assistant", "content": conv["ai_response"]})
+
+        # Add the current user message
+        context_messages.append({"role": "user", "content": user_message})
+
+        # Retrieve the last agentic role from the database
+        agentic_role = self.conversation_manager.get_last_agentic_role()
+        if agentic_role:
+            context_messages.append({"role": "system", "content": f"You are an AI assistant with the role: {agentic_role}."})
+
+        # Generate a response from the AI model
+        try:
+            completion = self.client.chat.completions.create(
+                model=self.MODEL_NAME,
+                messages=context_messages,
+                extra_headers={"HTTP-Referer": "your_site_url", "X-Title": "your_app_name"}
+            )
+            if completion.choices and completion.choices[0].message:
+                response_message = completion.choices[0].message.content
+
+                # Save the conversation to the database
+                self.conversation_manager.save_conversation(
+                    f"User: {user_message}\nAI: {response_message}",
+                    self.conversation_manager.generate_bulleted_summary(response_message),
+                    self.memory_handler.sentence_to_vec(response_message),
+                    agentic_role
+                )
+
+                return response_message
+            else:
+                logging.error("Error processing query: No message found in API response.")
+                return None
+        except Exception as e:
+            logging.error(f"Error processing query: {str(e)}")
+            return None
+# END OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\agenticreason.py
+
+
+# START OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\ai_memory.py
+import os
+import datetime
+import numpy as np
+import csv
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+from openai import OpenAI as Client
+from gensim.models import Word2Vec
+from gensim.utils import simple_preprocess
+import sqlite3
+from .memory_handler import MemoryHandler
+from .conversation_manager import ConversationManager
+
+conversation_manager = ConversationManager()
+
+def process_response_with_word2vec(self, response):
+    """
+    Process the response with Word2Vec for memory and embeddings.
+    Returns the embedding vector.
+    """
+    try:
+        # Convert the response to a vector using Word2Vec
+        embedding = self.memory_handler.sentence_to_vec(response)
+        if embedding:
+            logging.info("Response processed with Word2Vec and embedded in memory.")
+            return embedding
+        else:
+            logging.warning("Failed to generate Word2Vec embedding for the response.")
+            return None
+    except Exception as e:
+        logging.error(f"Error processing response with Word2Vec: {str(e)}")
+        return None
+# END OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\ai_memory.py
+
+
+# START OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\conversation_manager.py
+# START OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\conversation_manager.py
+import os
+import sqlite3
+import logging
+import json
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+from openai import OpenAI
+from .memory_handler import MemoryHandler
+from .web_agent import WebAgent
+import datetime
+from gensim.models import Word2Vec
+from gensim.utils import simple_preprocess
+import re
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
+)
+
+class ConversationManager:
+    def __init__(self):
+        self.memory_dir = os.path.join(os.path.dirname(__file__), "Memory")
+        os.makedirs(self.memory_dir, exist_ok=True)
+        self.conv_folder = self.create_conversation_folder()
+        self.db_path = os.path.join(self.conv_folder, "conversations.db")
+        self.MODEL_NAME = None
+        self.OPEN_ROUTER_API_KEY = None
+        self.client = None
+        self.memory_handler = MemoryHandler(self.conv_folder)
+        self.web_agent = WebAgent(self)
+        self.init_db()
+
+    def create_conversation_folder(self):
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        conv_folder = os.path.join(self.memory_dir, f"conversation_{timestamp}")
+        os.makedirs(conv_folder, exist_ok=True)
+        logging.info(f"Created new conversation folder: {conv_folder}")
+        return conv_folder
+
+    def init_db(self):
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('''CREATE TABLE IF NOT EXISTS file_chunks (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                timestamp TEXT,
+                chunk TEXT,
+                embedding TEXT,
+                file_name TEXT
+            )''')
+        cursor.execute('''CREATE TABLE IF NOT EXISTS website_chunks (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                timestamp TEXT,
+                chunk TEXT,
+                embedding TEXT,
+                url TEXT,
+                title TEXT
+            )''')
+        conn.commit()
+        conn.close()
+        logging.info(f"Database initialized at {self.db_path}")
+
+    def set_openrouter_api_key(self, api_key):
+        self.OPEN_ROUTER_API_KEY = api_key
+        self.update_client()
+
+    def set_model_name(self, model_name):
+        self.MODEL_NAME = model_name
+        self.update_client()
+
+    def update_client(self):
+        if self.MODEL_NAME and self.OPEN_ROUTER_API_KEY:
+            self.client = OpenAI(
+                base_url="https://openrouter.ai/api/v1",
+                api_key=self.OPEN_ROUTER_API_KEY,
+            )
+            logging.info("OpenRouter client updated with new API key and model name.")
+
+    def is_url(self, text):
+        url_pattern = re.compile(
+            r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+        )
+        return bool(url_pattern.search(text))
+
+    def extract_url(self, text):
+        url_pattern = re.compile(
+            r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+        )
+        match = url_pattern.search(text)
+        return match.group(0) if match else None
+
+    def find_most_relevant_chunk(self, query):
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute("SELECT chunk, embedding FROM website_chunks")
+        rows = cursor.fetchall()
+        conn.close()
+
+        if not rows:
+            return None
+
+        chunks = [row[0] for row in rows]
+        embeddings = [np.array(json.loads(row[1])) for row in rows]
+
+        query_embedding = self.memory_handler.sentence_to_vec(query)
+        similarities = [cosine_similarity([query_embedding], [embedding])[0][0] for embedding in embeddings]
+
+        most_relevant_index = np.argmax(similarities)
+        return chunks[most_relevant_index]
+
+    def save_chunks_to_db(self, chunks, file_name):
+        """
+        Save file chunks to the database with embeddings.
+        """
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        for chunk in chunks:
+            embedding = self.memory_handler.sentence_to_vec(chunk)
+            cursor.execute('''
+                INSERT INTO file_chunks (timestamp, chunk, embedding, file_name)
+                VALUES (?, ?, ?, ?)
+            ''', (
+                datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                chunk,
+                json.dumps(embedding.tolist()) if embedding is not None else None,
+                file_name
+            ))
+        conn.commit()
+        conn.close()
+        logging.info(f"Saved {len(chunks)} chunks to the database for file: {file_name}")
+
+    def process_query(self, user_message):
+        try:
+            if self.is_url(user_message):
+                url = self.extract_url(user_message)
+                if url:
+                    scraped_data = self.web_agent.scrape_url(url)
+                    if not scraped_data:
+                        return "Failed to scrape the website. Please try again."
+                    self.web_agent.save_seo_data(url, scraped_data)
+                    return "Website scraped successfully. Please ask your question about the content."
+            relevant_chunk = self.find_most_relevant_chunk(user_message)
+            if not relevant_chunk:
+                return "No relevant content found. Please scrape a website first."
+            truncated_chunk = self.truncate_text(relevant_chunk, max_tokens=2000)
+            response = self.process_chunks_with_ai([truncated_chunk], user_message)
+            return response
+        except Exception as e:
+            logging.error(f"Error processing query: {str(e)}")
+            return "An error occurred while processing your query."
+
+    def process_chunks_with_ai(self, chunks, query):
+        context = "\n\n".join(chunks)
+        try:
+            completion = self.client.chat.completions.create(
+                model=self.MODEL_NAME,
+                messages=[
+                    {"role": "system", "content": "You are an AI assistant. Respond naturally and conversationally."},
+                    {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {query}"}
+                ],
+                extra_headers={"HTTP-Referer": "your_site_url", "X-Title": "your_app_name"}
+            )
+            if completion.choices and completion.choices[0].message:
+                response_message = completion.choices[0].message.content
+                return response_message
+            else:
+                logging.error("Error processing query: No message found in API response.")
+                return None
+        except Exception as e:
+            logging.error(f"Error processing query: {str(e)}")
+            return None
+
+    def truncate_text(self, text, max_tokens=2000):
+        words = text.split()
+        if len(words) > max_tokens:
+            truncated_text = " ".join(words[:max_tokens])
+            return truncated_text + "..."
+        return text
+# END OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\conversation_manager.py
+# END OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\conversation_manager.py
+
+
+# START OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\file_picker.py
+import os
+import tkinter as tk
+from tkinter import filedialog
+import logging
+import chardet
+import PyPDF2
+import docx
+import csv
+import threading
+import customtkinter as ctk
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+
+# Set up logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+
+class FilePicker:
+    def __init__(self, conversation_manager, file_picker_button):
+        """
+        Initialize the FilePicker with a reference to the ConversationManager and the file picker button.
+        """
+        self.conversation_manager = conversation_manager
+        self.file_picker_button = file_picker_button  # Pass the button from ChatbotButtons
+        self.progress_bar = None
+
+    def pick_file(self):
+        """
+        Open a file dialog to select a file, read its content, and process it as a message.
+        """
+        root = tk.Tk()
+        root.withdraw()
+        file_path = filedialog.askopenfilename(title="Select a file to upload")
+        if file_path:
+            try:
+                # Convert the button to a progress bar
+                self.file_picker_button.configure(text="Processing...", fg_color="#000000", hover=False)
+                self.file_picker_button.update()
+
+                # Process the file in a separate thread
+                threading.Thread(target=self.process_file, args=(file_path,)).start()
+            except Exception as e:
+                logging.error(f"Error processing file: {str(e)}")
+                # Display the error message in the chatbot UI
+                self.conversation_manager.chatbot_ui.widgets['text_box'].configure(state="normal")
+                self.conversation_manager.chatbot_ui.widgets['text_box'].insert('end', f"Error processing file: {str(e)}\n", "assistant")
+                self.conversation_manager.chatbot_ui.widgets['text_box'].configure(state="disabled")
+                self.conversation_manager.chatbot_ui.widgets['text_box'].yview('end')
+                self.restore_button()
+
+    def process_file(self, file_path):
+        """
+        Process the file into separate chunks, generate embeddings, and save them to the database.
+        """
+        try:
+            # Read the file content
+            content = self.read_file_content(file_path)
+            file_name = os.path.basename(file_path)
+
+            # Split the content into chunks
+            total_words = len(content.split())
+            chunk_size = max(1, len(content.split()) // 10)  # Split into 10 chunks
+            chunks = [content[i:i + chunk_size] for i in range(0, len(content), chunk_size)]
+
+            # Add file-level identifiers to the first and last chunks
+            if chunks:
+                # Add start identifier to the first chunk
+                chunks[0] = f"--- Start of File: {file_name} ---\n{chunks[0]}"
+                # Add end identifier to the last chunk
+                chunks[-1] = f"{chunks[-1]}\n--- End of File: {file_name} ---"
+
+            # Update progress bar for gathering chunks
+            for i, _ in enumerate(chunks):
+                progress = (i + 1) / len(chunks) * 0.5  # First 50% for gathering
+                self.file_picker_button.configure(text=f"Processing... {int(progress * 100)}%")
+                self.file_picker_button.update()
+
+            # Stage 2: Generate embeddings and save chunks to the database
+            self.conversation_manager.save_chunks_to_db(chunks, file_name)
+            self.file_picker_button.configure(text="Processing... 100%")
+            self.file_picker_button.update()
+        finally:
+            # Restore the button after processing is complete
+            self.restore_button()
+
+    def restore_button(self):
+        """
+        Restore the file picker button after processing is complete.
+        """
+        self.file_picker_button.configure(text="Update Memory", fg_color="#000000", hover=True)
+        self.file_picker_button.update()
+
+    def detect_encoding(self, file_path):
+        """
+        Detect the encoding of a file.
+        """
+        with open(file_path, 'rb') as file:
+            raw_data = file.read()
+            result = chardet.detect(raw_data)
+            return result['encoding']
+
+    def read_file_content(self, file_path):
+        """
+        Read the content of a file based on its extension.
+        """
+        file_extension = os.path.splitext(file_path)[1].lower()
+        if file_extension == '.pdf':
+            with open(file_path, 'rb') as file:
+                reader = PyPDF2.PdfReader(file)
+                content = ""
+                for page in reader.pages:
+                    content += page.extract_text()
+            return content
+        elif file_extension == '.docx':
+            doc = docx.Document(file_path)
+            content = "\n".join([para.text for para in doc.paragraphs])
+            return content
+        elif file_extension == '.txt':
+            encoding = self.detect_encoding(file_path)
+            with open(file_path, 'r', encoding=encoding) as file:
+                content = file.read()
+            return content
+        elif file_extension == '.csv':
+            encoding = self.detect_encoding(file_path)
+            with open(file_path, 'r', encoding=encoding) as file:
+                reader = csv.reader(file)
+                content = "\n".join([",".join(row) for row in reader])
+            return content
+        elif file_extension in ['.py', '.js', '.java', '.html', '.css', '.cpp', '.c', '.sh', '.sql']:
+            encoding = self.detect_encoding(file_path)
+            with open(file_path, 'r', encoding=encoding) as file:
+                content = file.read()
+            return content
+        else:
+            raise ValueError(f"Unsupported file type: {file_extension}")
+
+    def process_query(self, query):
+        """
+        Process a user query by finding the most relevant chunk and sending it to the AI model.
+        """
+        # Retrieve all chunks from the database
+        chunks = self.conversation_manager.get_all_chunks()
+
+        # Find the most relevant chunk(s) using vector search
+        relevant_chunks = self.find_most_relevant_chunk(query, chunks)
+
+        # Truncate or summarize the chunk(s) if necessary to stay within token limits
+        truncated_chunks = [self.truncate_text(chunk, max_tokens=2000) for chunk in relevant_chunks]
+
+        # Send the truncated chunk(s) to the AI model for processing
+        response = self.conversation_manager.process_chunks_with_ai(truncated_chunks, query)
+
+        return response
+
+    def find_most_relevant_chunk(self, query, chunks):
+        """
+        Find the most relevant chunk of the file based on the query using vector search.
+        Only the top N most relevant chunks are returned for efficiency.
+        """
+        # Convert the query into a vector
+        query_embedding = self.conversation_manager.memory_handler.sentence_to_vec(query)
+
+        # Retrieve embeddings for all chunks
+        chunk_embeddings = [self.conversation_manager.memory_handler.sentence_to_vec(chunk) for chunk in chunks]
+
+        # Calculate cosine similarity between the query and each chunk
+        similarities = [cosine_similarity([query_embedding], [embedding])[0][0] for embedding in chunk_embeddings]
+
+        # Find the indices of the top N most relevant chunks
+        top_n = 1  # Only return the most relevant chunk to stay within token limits
+        top_indices = np.argsort(similarities)[-top_n:][::-1]
+
+        # Return the most relevant chunk(s)
+        return [chunks[i] for i in top_indices]
+
+    def truncate_text(self, text, max_tokens=2000):
+        """
+        Truncate the text to ensure it stays within the token limit.
+        """
+        words = text.split()
+        if len(words) > max_tokens:
+            truncated_text = " ".join(words[:max_tokens])
+            return truncated_text + "..."  # Add ellipsis to indicate truncation
+        return text
+# END OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\file_picker.py
+
+
+# START OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\init.py
+
+# END OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\init.py
+
+
+# START OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\memory_handler.py
+import os
+import logging
+import numpy as np
+from gensim.models import Word2Vec
+from gensim.utils import simple_preprocess
+
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
+)
+
+class MemoryHandler:
+    def __init__(self, memory_dir):
+        """
+        Initialize the MemoryHandler with a specific memory directory.
+        The Word2Vec model will be saved in the conversation-specific subfolder.
+        """
+        self.memory_dir = memory_dir
+        self.model_path = os.path.join(self.memory_dir, "word2vec.model")
+        self.word2vec_model = None
+        self.vector_size = 100  # Ensure this matches the Word2Vec model's vector size
+        self.load_or_train_word2vec_model()
+
+    def load_or_train_word2vec_model(self):
+        """
+        Load the Word2Vec model if it exists in the conversation-specific directory, otherwise train a new one.
+        """
+        if os.path.exists(self.model_path):
+            logging.info("Loading existing Word2Vec model.")
+            self.word2vec_model = Word2Vec.load(self.model_path)
+        else:
+            logging.info("Training new Word2Vec model.")
+            # Train a new Word2Vec model with default data
+            sentences = [["default", "sentence", "for", "training"]]
+            self.word2vec_model = Word2Vec(sentences, vector_size=self.vector_size, window=5, min_count=1, workers=4)
+            self.word2vec_model.save(self.model_path)
+
+    def sentence_to_vec(self, sentence):
+        """
+        Convert a sentence to a vector using Word2Vec.
+        Ensure an embedding is always generated, even for short or single-word messages.
+        """
+        if not self.word2vec_model:
+            logging.error("Word2Vec model is not loaded.")
+            return None
+
+        try:
+            # Preprocess the sentence into words
+            words = simple_preprocess(sentence)
+            if not words:  # If no words are found, use the entire sentence as a single word
+                words = [sentence.strip()]
+
+            # Generate vectors for each word in the sentence
+            vectors = []
+            for word in words:
+                if word in self.word2vec_model.wv:
+                    vectors.append(self.word2vec_model.wv[word])
+                else:
+                    # If the word is not in the vocabulary, generate a random vector
+                    vectors.append(np.random.rand(self.vector_size))
+
+            if vectors:
+                # Return the average of all word vectors
+                return np.mean(vectors, axis=0)
+            else:
+                # If no valid words are found, return a zero vector
+                logging.warning("No valid words found in the sentence for Word2Vec. Returning a zero vector.")
+                return np.zeros(self.vector_size)
+        except Exception as e:
+            logging.error(f"Error converting sentence to vector: {str(e)}")
+            return np.zeros(self.vector_size)
+
+    def update_word2vec_model(self, new_sentences):
+        """
+        Update the Word2Vec model with new sentences.
+        """
+        if not self.word2vec_model:
+            logging.error("Word2Vec model is not loaded.")
+            return
+
+        try:
+            # Ensure new_sentences is a list of tokenized sentences (list of lists of words)
+            if not isinstance(new_sentences, list) or not all(isinstance(sentence, list) for sentence in new_sentences):
+                raise ValueError("new_sentences must be a list of tokenized sentences (list of lists of words).")
+
+            # Update the Word2Vec model with new sentences
+            self.word2vec_model.build_vocab(new_sentences, update=True)
+            self.word2vec_model.train(new_sentences, total_examples=len(new_sentences), epochs=10)
+            self.word2vec_model.save(self.model_path)
+            logging.info("Word2Vec model updated with new sentences.")
+        except Exception as e:
+            logging.error(f"Error updating Word2Vec model: {str(e)}")
+# END OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\memory_handler.py
+
+
+# START OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\typestreaming.py
+import os
+import datetime
+import csv
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+from openai import OpenAI as Client
+
+class ConversationEventHandler(FileSystemEventHandler):
+    def __init__(self, manager):
+        self.manager = manager
+
+    def on_modified(self, event):
+        if event.src_path == self.manager.conversation_csv_path:
+            self.manager.process_new_messages()
+
+class ConversationManager:
+    def __init__(self):
+        self.memory_dir = os.path.join(os.path.dirname(__file__), "Memory")
+        os.makedirs(self.memory_dir, exist_ok=True)
+        self.conv_folder = None
+        self.conversation_csv_path = None
+        self.context = []
+        self.unique_entries = set()
+        self.MODEL_NAME = "gpt-4"
+        self.OPEN_ROUTER_API_KEY = None
+        self.client = None
+        self.observer = None
+        self.last_modified_time = None
+
+        self.init_conversation()
+
+    def init_conversation(self):
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.conv_folder = os.path.join(self.memory_dir, f"memory_{timestamp}")
+        os.makedirs(self.conv_folder, exist_ok=True)
+        self.conversation_csv_path = os.path.join(self.conv_folder, "conversations.csv")
+        
+        if not os.path.exists(self.conversation_csv_path):
+            with open(self.conversation_csv_path, "w", encoding='utf-8', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(["Timestamp", "Message", "Summary"])
+        self.load_conversation_from_csv()
+        self.start_watching_file()
+
+    def load_conversation_from_csv(self):
+        current_modified_time = os.path.getmtime(self.conversation_csv_path)
+        if self.last_modified_time is None or self.last_modified_time < current_modified_time:
+            self.last_modified_time = current_modified_time
+            self.context = []
+            self.unique_entries = set()
+            if os.path.exists(self.conversation_csv_path):
+                with open(self.conversation_csv_path, "r", encoding='utf-8', newline='') as f:
+                    reader = csv.reader(f)
+                    next(reader)  # Skip header row
+                    for row in reader:
+                        timestamp = row[0]
+                        message = row[1]
+                        summary = row[2]
+                        entry_key = (timestamp, message)
+                        if entry_key not in self.unique_entries:
+                            self.unique_entries.add(entry_key)
+                            self.context.append((timestamp, message, summary))
+
+    def append_to_conversation(self, user_query, ai_response=None, timestamp=None):
+        if not timestamp:
+            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        if ai_response is not None:
+            combined_message = f"User: {user_query}\nAI: {ai_response}"
+        else:
+            combined_message = f"User: {user_query}"
+        
+        summary = self.summarize(combined_message)
+        
+        entry_key = (timestamp, combined_message)
+        if entry_key not in self.unique_entries:
+            self.unique_entries.add(entry_key)
+            self.context.append((timestamp, combined_message, summary))
+            self.save_conversation_to_csv(combined_message, summary, timestamp)
+
+    def summarize(self, message):
+        if len(message.split()) <= 50:
+            return message
+        
+        summary_prompt = f"Summarize the following message in 50 words or less:\n\n{message}"
+        
+        try:
+            completion = self.client.chat.completions.create(
+                model=self.MODEL_NAME,
+                messages=[
+                    {"role": "system", "content": "You are an AI assistant tasked with summarizing messages."},
+                    {"role": "user", "content": summary_prompt}
+                ],
+                extra_headers={
+                    "HTTP-Referer": "your_site_url",  # Replace with your site URL
+                    "X-Title": "your_app_name",       # Replace with your app name
+                }
+            )
+            if completion.choices and completion.choices[0].message:
+                return completion.choices[0].message.content.strip()
+            else:
+                print("Error summarizing message: No message found in API response.")
+                return message
+        except Exception as e:
+            print(f"Error summarizing message: {str(e)}")
+            return message
+
+    def process_query(self, user_message):
+        self.load_conversation_from_csv()
+
+        self.append_to_conversation(user_message)
+
+        conversation_history = [
+            {"role": "system", "content": "You are an AI assistant. I will remember our conversation and provide relevant responses based on previous interactions."}
+        ]
+
+        for timestamp, message, summary in self.context:
+            if "\n" in message:
+                user_part, ai_part = message.split("\n", 1)
+                user_part = user_part.replace("User: ", "").strip()
+                ai_part = ai_part.replace("AI: ", "").strip()
+                conversation_history.append({"role": "user", "content": user_part})
+                conversation_history.append({"role": "assistant", "content": ai_part})
+            else:
+                user_part = message.replace("User: ", "").strip()
+                conversation_history.append({"role": "user", "content": user_part})
+
+        try:
+            completion = self.client.chat.completions.create(
+                model=self.MODEL_NAME,
+                messages=conversation_history,
+                extra_headers={
+                    "HTTP-Referer": "your_site_url",  # Replace with your site URL
+                    "X-Title": "your_app_name",       # Replace with your app name
+                }
+            )
+            if completion.choices and completion.choices[0].message:
+                response_message = completion.choices[0].message.content
+                self.append_to_conversation(user_message, response_message)
+                return response_message
+            else:
+                print("Error processing query: No message found in API response.")
+                return None
+        except Exception as e:
+            print(f"Error processing query: {str(e)}")
+            return None
+
+    def process_new_messages(self):
+        self.load_conversation_from_csv()
+        self.cleanup_csv()
+
+    def cleanup_csv(self):
+        # Create a temporary file to store valid rows
+        temp_csv_path = self.conversation_csv_path + ".tmp"
+        with open(self.conversation_csv_path, "r", encoding='utf-8', newline='') as f_in, open(temp_csv_path, "w", encoding='utf-8', newline='') as f_out:
+            reader = csv.reader(f_in)
+            writer = csv.writer(f_out)
+            header = next(reader)
+            writer.writerow(header)  # Write the header to the temp file
+            
+            for row in reader:
+                timestamp = row[0]
+                message = row[1]
+                summary = row[2]
+                if "\n" in message:
+                    user_part, ai_part = message.split("\n", 1)
+                    if user_part.strip().startswith("User: ") and ai_part.strip().startswith("AI: "):
+                        writer.writerow(row)
+                else:
+                    # If the row does not contain a newline, it might be a user message without AI response
+                    if message.strip().startswith("User: "):
+                        pass  # Skip this row as it's incomplete
+
+        # Replace the original file with the temp file
+        os.replace(temp_csv_path, self.conversation_csv_path)
+        self.load_conversation_from_csv()
+
+    def clear_conversation(self):
+        if self.conv_folder:
+            for root, dirs, files in os.walk(self.conv_folder, topdown=False):
+                for name in files:
+                    os.remove(os.path.join(root, name))
+                for name in dirs:
+                    os.rmdir(os.path.join(root, name))
+            os.rmdir(self.conv_folder)
+        
+        self.init_conversation()
+        self.context = []
+        self.unique_entries = set()
+
+    def set_model_name(self, model_name):
+        self.MODEL_NAME = model_name
+        self.update_client()
+
+    def set_openrouter_api_key(self, api_key):
+        self.OPEN_ROUTER_API_KEY = api_key
+        self.update_client()
+
+    def update_client(self):
+        if self.MODEL_NAME and self.OPEN_ROUTER_API_KEY:
+            self.client = Client(
+                base_url="https://openrouter.ai/api/v1",
+                api_key=self.OPEN_ROUTER_API_KEY,
+            )
+
+    def start_watching_file(self):
+        if self.conversation_csv_path:
+            event_handler = ConversationEventHandler(self)
+            self.observer = Observer()
+            self.observer.schedule(event_handler, os.path.dirname(self.conversation_csv_path), recursive=False)
+            self.observer.start()
+
+    def stop_watching_file(self):
+        if self.observer:
+            self.observer.stop()
+            self.observer.join()
+
+    def save_conversation_to_csv(self, combined_message, summary, timestamp):
+        with open(self.conversation_csv_path, "a", encoding='utf-8', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow([timestamp, combined_message, summary])
+
+# Define the conversation manager instance
+conversation_manager = ConversationManager()
+conversation_manager.set_model_name("gpt-4")  # Set your desired model name
+conversation_manager.set_openrouter_api_key("your_openrouter_api_key")  # Set your OpenRouter API key
+conversation_manager.init_conversation()
+
+# Example usage:
+user_query = "Tell me a story about a brave knight who saved a kingdom from a dragon."
+response = conversation_manager.process_query(user_query)
+print(f"AI Response: {response}")
+# END OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\typestreaming.py
+
+
+# START OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\web_agent.py
+import os
+import logging
+import re
+from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.common.exceptions import TimeoutException, WebDriverException
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import time
+import threading
+from openai import OpenAI
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+from .memory_handler import MemoryHandler
+from gensim.utils import simple_preprocess
+import sqlite3
+import datetime
+import json
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
+)
+
+print_lock = threading.Lock()
+
+class WebAgent:
+    def __init__(self, conversation_manager):
+        self.conversation_manager = conversation_manager
+        self.client = OpenAI(
+            base_url="https://openrouter.ai/api/v1",
+            api_key=self.conversation_manager.OPEN_ROUTER_API_KEY,
+        )
+        self.memory_handler = MemoryHandler(self.conversation_manager.memory_dir)
+
+    def is_url(self, text):
+        url_pattern = re.compile(
+            r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+        )
+        return bool(url_pattern.search(text))
+
+    def extract_urls(self, text):
+        url_pattern = re.compile(
+            r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+        )
+        return url_pattern.findall(text)
+
+    def scrape_url(self, url):
+        chrome_options = Options()
+        chrome_options.add_argument("--disable-gpu")
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--disable-dev-shm-usage")
+        try:
+            driver = webdriver.Chrome(options=chrome_options)
+            driver.set_page_load_timeout(30)
+            driver.get(url)
+            time.sleep(5)
+            seo_data = self.scrape_seo_info(driver.page_source, url)
+            driver.quit()
+            return seo_data
+        except (TimeoutException, WebDriverException) as e:
+            logging.error(f"Error scraping URL {url}: {str(e)}")
+            return None
+
+    def scrape_seo_info(self, page_source, url):
+        try:
+            soup = BeautifulSoup(page_source, 'html.parser')
+            seo_data = {
+                'title': soup.title.string if soup.title else "No Title",
+                'meta_description': soup.find('meta', attrs={'name': 'description'})['content'] if soup.find('meta', attrs={'name': 'description'}) else "No Meta Description",
+                'h1': [h1.text for h1 in soup.find_all('h1')],
+                'h2': [h2.text for h2 in soup.find_all('h2')],
+                'h3': [h3.text for h3 in soup.find_all('h3')],
+                'h4': [h4.text for h4 in soup.find_all('h4')],
+                'h5': [h5.text for h5 in soup.find_all('h5')],
+                'h6': [h6.text for h6 in soup.find_all('h6')],
+                'paragraphs': [p.text for p in soup.find_all('p')],
+                'unordered_lists': [ul.text for ul in soup.find_all('ul')],
+                'ordered_lists': [ol.text for ol in soup.find_all('ol')],
+                'image_alt_texts': [img['alt'] for img in soup.find_all('img') if img.get('alt')],
+                'internal_links': [a['href'] for a in soup.find_all('a', href=True) if a['href'].startswith('/') or url in a['href']],
+                'external_links': [a['href'] for a in soup.find_all('a', href=True) if not a['href'].startswith('/') and url not in a['href']],
+                'canonical': soup.find('link', rel='canonical')['href'] if soup.find('link', rel='canonical') else "No Canonical URL",
+                'robots': soup.find('meta', attrs={'name': 'robots'})['content'] if soup.find('meta', attrs={'name': 'robots'}) else "No Robots Meta",
+                'word_count': len(soup.get_text().split())
+            }
+            h2_sections = []
+            current_h2 = None
+            current_content = []
+            for element in soup.find_all(['h2', 'p', 'ul', 'ol']):
+                if element.name == 'h2':
+                    if current_h2:
+                        h2_sections.append({
+                            'header': current_h2,
+                            'content': "\n".join(current_content)
+                        })
+                        current_content = []
+                    current_h2 = element.text.strip()
+                elif element.name in ['p', 'ul', 'ol']:
+                    current_content.append(element.text.strip())
+            if current_h2:
+                h2_sections.append({
+                    'header': current_h2,
+                    'content': "\n".join(current_content)
+                })
+            embeddings = []
+            for section in h2_sections:
+                embedding = self.memory_handler.sentence_to_vec(section['content'])
+                embeddings.append(embedding)
+            sentences = [simple_preprocess(section['content']) for section in h2_sections]
+            self.memory_handler.update_word2vec_model(sentences)
+            return {
+                'seo_data': seo_data,
+                'h2_sections': h2_sections,
+                'embeddings': embeddings
+            }
+        except Exception as e:
+            logging.error(f"Error scraping SEO info: {str(e)}")
+            return None
+
+    def process_urls(self, urls):
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            futures = {executor.submit(self.scrape_url, url): url for url in urls}
+            for future in as_completed(futures):
+                url = futures[future]
+                try:
+                    data = future.result()
+                    if data:
+                        self.save_seo_data(url, data)
+                        yield url, data
+                    else:
+                        logging.error(f"No data returned for URL: {url}")
+                except Exception as e:
+                    logging.error(f"Error processing URL {url}: {str(e)}")
+
+    def save_seo_data(self, url, data):
+        markdown_content = self.convert_to_markdown(data)
+        embedding = self.memory_handler.sentence_to_vec(markdown_content)
+        conn = sqlite3.connect(self.conversation_manager.db_path)
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO website_chunks (timestamp, chunk, embedding, url, title)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (
+            datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            markdown_content,
+            json.dumps(embedding.tolist()) if embedding is not None else None,
+            url,
+            data['seo_data']['title']
+        ))
+        conn.commit()
+        conn.close()
+        logging.info(f"SEO data and raw content saved to the database for URL: {url}")
+
+    def convert_to_markdown(self, data):
+        markdown_content = []
+        seo_data = data.get("seo_data", {})
+        h2_sections = data.get("h2_sections", [])
+        if seo_data.get("title"):
+            markdown_content.append(f"# {seo_data['title']}\n")
+        if seo_data.get("meta_description"):
+            markdown_content.append(f"**Meta Description:** {seo_data['meta_description']}\n")
+        if h2_sections:
+            for section in h2_sections:
+                markdown_content.append(f"## {section['header']}\n")
+                markdown_content.append(f"{section['content']}\n")
+        return "\n".join(markdown_content)
+# END OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\web_agent.py
+
+
+# START OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\Appendix\append_scripts.py
+import os
+
+def generate_combined_file(source_dir, output_file):
+    """Generate a combined sitemap and script content file."""
+    supported_extensions = {".py", ".js", ".html", ".css", ".java"}  # Supported script extensions
+    excluded_folders = [
+        os.path.join(source_dir, "brain", "Memory"),
+        os.path.join(source_dir, "Project Overview"),
+        os.path.join(source_dir, "gui")  # Exclude the 'gui' folder
+    ]  # Folders to exclude
+
+    with open(output_file, "w", encoding="utf-8") as outfile:
+        # Step 1: Generate the sitemap
+        outfile.write("No comments # in code, don't print the site map. Only show corrected script. Sitemap of Directory: Odin 2\n")
+        outfile.write("=" * 50 + "\n")
+        for root, dirs, files in os.walk(source_dir):
+            # Skip excluded folders
+            if any(root.startswith(folder) for folder in excluded_folders):
+                continue
+
+            # Write folder name
+            relative_path = os.path.relpath(root, source_dir)
+            outfile.write(f"\n[Folder] {relative_path}\n")
+            outfile.write("-" * 50 + "\n")
+            for file in files:
+                if not file.endswith(".txt"):  # Skip .txt files
+                    file_path = os.path.join(root, file)
+                    outfile.write(f"  {file_path}\n")
+
+        outfile.write("\n" + "=" * 50 + "\n\n")
+
+        # Step 2: Append script contents
+        outfile.write("Script Contents\n")
+        outfile.write("=" * 50 + "\n")
+        for root, _, files in os.walk(source_dir):
+            # Skip excluded folders
+            if any(root.startswith(folder) for folder in excluded_folders):
+                continue
+
+            for file in files:
+                file_path = os.path.join(root, file)
+                # Check file extension
+                if os.path.splitext(file)[1] in supported_extensions:
+                    try:
+                        with open(file_path, "r", encoding="utf-8") as infile:
+                            # Write a header for each file
+                            outfile.write(f"\n# START OF FILE: {file_path}\n")
+                            outfile.write(infile.read())
+                            outfile.write(f"\n# END OF FILE: {file_path}\n\n")
+                            print(f"Appended: {file_path}")
+                    except Exception as e:
+                        print(f"Error reading {file_path}: {e}")
+
+if __name__ == "__main__":
+    source_directory = r"C:\Users\Sean Craig\Desktop\AI Python Tools\Odin"
+    output_file_path = r"C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\Appendix\combined_sitemap_and_scripts.txt"
+    
+    generate_combined_file(source_directory, output_file_path)
+    print(f"\nSitemap and script contents have been saved to {output_file_path}")
+
+# END OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\Appendix\append_scripts.py
+
