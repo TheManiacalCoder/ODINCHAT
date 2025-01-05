@@ -1,0 +1,2140 @@
+No comments # in code, don't print the site map. Only show corrected script. Sitemap of Directory: Odin 2
+==================================================
+
+[Folder] .
+--------------------------------------------------
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\config.json
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\config.py
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\engine.py
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\ODIN.bat
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\__init__.py
+
+[Folder] brain
+--------------------------------------------------
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\agenticreason.py
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\ai_memory.py
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\conversation_manager.py
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\file_picker.py
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\init.py
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\memory_handler.py
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\typestreaming.py
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\web_agent.py
+
+[Folder] brain\Appendix
+--------------------------------------------------
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\Appendix\append_scripts.py
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\Appendix\launch_project_over_view.bat
+
+[Folder] brain\__pycache__
+--------------------------------------------------
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\__pycache__\agenticreason.cpython-311.pyc
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\__pycache__\ai_memory.cpython-311.pyc
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\__pycache__\context_tree.cpython-311.pyc
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\__pycache__\conversation_manager.cpython-311.pyc
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\__pycache__\file_picker.cpython-311.pyc
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\__pycache__\manager.cpython-311.pyc
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\__pycache__\memory_handler.cpython-311.pyc
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\__pycache__\web_agent.cpython-311.pyc
+
+[Folder] gui
+--------------------------------------------------
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\gui\app.py
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\gui\chatbot_buttons.py
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\gui\chatbot_fields.py
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\gui\chatbot_ui.py
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\gui\CustomText.py
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\gui\message_parser.py
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\gui\stream_response.py
+
+[Folder] gui\__pycache__
+--------------------------------------------------
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\gui\__pycache__\accelerator.cpython-311.pyc
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\gui\__pycache__\app.cpython-311.pyc
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\gui\__pycache__\chatbot_buttons.cpython-311.pyc
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\gui\__pycache__\chatbot_ui.cpython-311.pyc
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\gui\__pycache__\CustomText.cpython-311.pyc
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\gui\__pycache__\message_parser.cpython-311.pyc
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\gui\__pycache__\stream_response.cpython-311.pyc
+
+[Folder] __pycache__
+--------------------------------------------------
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\__pycache__\config.cpython-311.pyc
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\__pycache__\dependencies.cpython-311.pyc
+  C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\__pycache__\engine.cpython-311.pyc
+
+==================================================
+
+Script Contents
+==================================================
+
+# START OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\config.py
+import os
+import json
+
+config_path = os.path.join(os.path.dirname(__file__), 'config.json')
+with open(config_path, 'r', encoding='utf-8') as config_file:
+    config = json.load(config_file)
+
+OPEN_ROUTER_API_KEY = config['OPEN_ROUTER_API_KEY']
+MODEL_NAME = config['MODEL_NAME']
+# END OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\config.py
+
+
+# START OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\engine.py
+import customtkinter as ctk
+from gui.app import run_gui_wrapper
+from brain.ai_memory import conversation_manager
+from brain.agenticreason import AgenticReasoner
+from config import OPEN_ROUTER_API_KEY, MODEL_NAME
+
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("blue")
+
+# Set the OpenRouter API key and model name
+conversation_manager.set_openrouter_api_key(OPEN_ROUTER_API_KEY)
+conversation_manager.set_model_name(MODEL_NAME)
+
+agentic_reasoner = AgenticReasoner(api_key=OPEN_ROUTER_API_KEY, model_name=MODEL_NAME)
+
+def run_engine():
+    root = ctk.CTk()
+    root.title("Odin")
+
+    screen_width = root.winfo_screenwidth()
+    screen_height = root.winfo_screenheight()
+
+    window_width = int(screen_width * 0.25)
+    window_height = int(screen_height * 0.85)
+
+    window_x = (screen_width - window_width) // 2
+    window_y = (screen_height - window_height) // 2
+
+    root.geometry(f"{window_width}x{window_height}+{window_x}+{window_y}")
+    root.configure(fg_color="#000000")
+
+    container = ctk.CTkFrame(root, fg_color="#000000", border_width=0)
+    container.pack(padx=20, pady=20, fill=ctk.BOTH, expand=True)
+
+    # Pass the ChatbotUI instance to the ConversationManager
+    chatbot_ui = run_gui_wrapper(container)
+    conversation_manager.chatbot_ui = chatbot_ui  # Ensure this line is present
+
+    root.mainloop()
+
+if __name__ == "__main__":
+    run_engine()
+# END OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\engine.py
+
+
+# START OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\__init__.py
+
+# END OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\__init__.py
+
+
+# START OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\agenticreason.py
+import os
+import json
+import logging
+import re
+from openai import OpenAI as Client
+from .conversation_manager import ConversationManager
+from .memory_handler import MemoryHandler
+
+# Set up logging with timestamp and level
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
+)
+
+class AgenticReasoner:
+    def __init__(self, api_key, model_name="gpt-4"):
+        """
+        Initialize the Agentic Reasoner with an API key and model name.
+        """
+        self.OPEN_ROUTER_API_KEY = api_key
+        self.MODEL_NAME = model_name
+        self.client = Client(
+            base_url="https://openrouter.ai/api/v1",
+            api_key=self.OPEN_ROUTER_API_KEY,
+        )
+        self.conversation_manager = ConversationManager()
+        self.memory_handler = MemoryHandler(self.conversation_manager.memory_dir)
+        self.role = None  # Initialize role as None, to be set dynamically
+        logging.info("Agentic Reasoner initialized.")
+
+    def is_url(self, text):
+        """
+        Check if the input text is a URL using a regular expression.
+        """
+        # Regular expression to detect URLs
+        url_pattern = re.compile(
+            r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+        )
+        return bool(url_pattern.search(text))
+
+    def process_query(self, user_message):
+        """
+        Process the user query and generate a response using the AI model.
+        """
+        # Check if the user message is a URL
+        if self.is_url(user_message):
+            # Log that a URL was detected
+            logging.info("1 URL detected")
+
+            # Acknowledge the URL submission with a specific response
+            response_message = "That's some interesting info!"
+            self.conversation_manager.save_conversation(
+                f"User: {user_message}\nAI: {response_message}",
+                self.conversation_manager.generate_bulleted_summary(response_message),
+                self.memory_handler.sentence_to_vec(response_message),
+                self.role
+            )
+            return response_message
+
+        # If it's not a URL, proceed with normal query processing
+        # Retrieve previous conversations for context
+        previous_conversations = self.conversation_manager.get_previous_conversations()
+        if previous_conversations is None:  # Ensure previous_conversations is not None
+            previous_conversations = []
+
+        context_messages = [{"role": "system", "content": "You are an AI assistant."}]
+        for conv in previous_conversations:
+            context_messages.append({"role": "user", "content": conv["user_message"]})
+            context_messages.append({"role": "assistant", "content": conv["ai_response"]})
+
+        # Add the current user message
+        context_messages.append({"role": "user", "content": user_message})
+
+        # Retrieve the last agentic role from the database
+        agentic_role = self.conversation_manager.get_last_agentic_role()
+        if agentic_role:
+            context_messages.append({"role": "system", "content": f"You are an AI assistant with the role: {agentic_role}."})
+
+        # Generate a response from the AI model
+        try:
+            completion = self.client.chat.completions.create(
+                model=self.MODEL_NAME,
+                messages=context_messages,
+                extra_headers={"HTTP-Referer": "your_site_url", "X-Title": "your_app_name"}
+            )
+            if completion.choices and completion.choices[0].message:
+                response_message = completion.choices[0].message.content
+
+                # Save the conversation to the database
+                self.conversation_manager.save_conversation(
+                    f"User: {user_message}\nAI: {response_message}",
+                    self.conversation_manager.generate_bulleted_summary(response_message),
+                    self.memory_handler.sentence_to_vec(response_message),
+                    agentic_role
+                )
+
+                return response_message
+            else:
+                logging.error("Error processing query: No message found in API response.")
+                return None
+        except Exception as e:
+            logging.error(f"Error processing query: {str(e)}")
+            return None
+# END OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\agenticreason.py
+
+
+# START OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\ai_memory.py
+import os
+import datetime
+import numpy as np
+import csv
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+from openai import OpenAI as Client
+from gensim.models import Word2Vec
+from gensim.utils import simple_preprocess
+import sqlite3
+from .memory_handler import MemoryHandler
+from .conversation_manager import ConversationManager
+
+conversation_manager = ConversationManager()
+
+def process_response_with_word2vec(self, response):
+    """
+    Process the response with Word2Vec for memory and embeddings.
+    Returns the embedding vector.
+    """
+    try:
+        # Convert the response to a vector using Word2Vec
+        embedding = self.memory_handler.sentence_to_vec(response)
+        if embedding:
+            logging.info("Response processed with Word2Vec and embedded in memory.")
+            return embedding
+        else:
+            logging.warning("Failed to generate Word2Vec embedding for the response.")
+            return None
+    except Exception as e:
+        logging.error(f"Error processing response with Word2Vec: {str(e)}")
+        return None
+# END OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\ai_memory.py
+
+
+# START OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\conversation_manager.py
+import os
+import sqlite3
+import logging
+import json
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+from openai import OpenAI
+from .memory_handler import MemoryHandler
+from .web_agent import WebAgent
+import datetime
+from gensim.models import Word2Vec
+from gensim.utils import simple_preprocess
+import re
+
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
+)
+
+class ConversationManager:
+    def __init__(self):
+        """
+        Initialize the ConversationManager with a memory directory and database.
+        """
+        self.memory_dir = os.path.join(os.path.dirname(__file__), "Memory")
+        os.makedirs(self.memory_dir, exist_ok=True)
+        self.conv_folder = self.create_conversation_folder()
+        self.db_path = os.path.join(self.conv_folder, "conversations.db")
+        self.MODEL_NAME = None
+        self.OPEN_ROUTER_API_KEY = None
+        self.client = None
+        self.memory_handler = MemoryHandler(self.conv_folder)
+        self.web_agent = WebAgent(self)
+        self.init_db()
+
+    def create_conversation_folder(self):
+        """
+        Create a new conversation folder with a unique timestamp.
+        """
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        conv_folder = os.path.join(self.memory_dir, f"conversation_{timestamp}")
+        os.makedirs(conv_folder, exist_ok=True)
+        logging.info(f"Created new conversation folder: {conv_folder}")
+        return conv_folder
+
+    def init_db(self):
+        """
+        Initialize the SQLite database for the conversation.
+        """
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+
+        # Table for file uploads
+        cursor.execute('''CREATE TABLE IF NOT EXISTS file_chunks (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                timestamp TEXT,
+                chunk TEXT,
+                embedding TEXT,
+                file_name TEXT
+            )''')
+
+        # Table for website content
+        cursor.execute('''CREATE TABLE IF NOT EXISTS website_chunks (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                timestamp TEXT,
+                chunk TEXT,
+                embedding TEXT,
+                url TEXT,
+                title TEXT
+            )''')
+
+        conn.commit()
+        conn.close()
+        logging.info(f"Database initialized at {self.db_path}")
+
+    def set_openrouter_api_key(self, api_key):
+        """
+        Set the OpenRouter API key and update the OpenAI client.
+        """
+        self.OPEN_ROUTER_API_KEY = api_key
+        self.update_client()
+
+    def set_model_name(self, model_name):
+        """
+        Set the model name and update the OpenAI client.
+        """
+        self.MODEL_NAME = model_name
+        self.update_client()
+
+    def update_client(self):
+        """
+        Update the OpenAI client with the current API key and model name.
+        """
+        if self.MODEL_NAME and self.OPEN_ROUTER_API_KEY:
+            self.client = OpenAI(
+                base_url="https://openrouter.ai/api/v1",  # Use OpenRouter's API endpoint
+                api_key=self.OPEN_ROUTER_API_KEY,
+            )
+            logging.info("OpenRouter client updated with new API key and model name.")
+
+    def is_url(self, text):
+        """
+        Check if the input text contains a URL.
+        """
+        url_pattern = re.compile(
+            r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+        )
+        return bool(url_pattern.search(text))
+
+    def extract_url(self, text):
+        """
+        Extract the first URL from the input text.
+        """
+        url_pattern = re.compile(
+            r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+        )
+        match = url_pattern.search(text)
+        return match.group(0) if match else None
+
+    def scrape_and_save_website(self, url):
+        """
+        Scrape a website, chunk the content, and save it to the database.
+        """
+        try:
+            # Scrape the website using the WebAgent
+            scraped_data = self.web_agent.scrape_url(url)
+
+            if not scraped_data:
+                logging.error(f"Failed to scrape website: {url}")
+                return False
+
+            # Extract the title and content
+            title = scraped_data.get("title", "No Title")
+            content = scraped_data.get("content", "")
+
+            # Split the content into chunks
+            chunk_size = 500  # Adjust chunk size as needed
+            chunks = [content[i:i + chunk_size] for i in range(0, len(content), chunk_size)]
+
+            # Save the chunks to the database
+            self.save_website_chunks_to_db(chunks, url, title)
+            logging.info(f"Website scraped and saved to the database: {url}")
+            return True
+        except Exception as e:
+            logging.error(f"Error scraping website {url}: {str(e)}")
+            return False
+
+    def save_website_chunks_to_db(self, chunks, url, title):
+        """
+        Save website chunks and their embeddings to the database.
+        """
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        for chunk in chunks:
+            # Generate an embedding for the chunk
+            embedding = self.memory_handler.sentence_to_vec(chunk)
+
+            # Save the chunk to the database
+            cursor.execute('''
+                INSERT INTO website_chunks (timestamp, chunk, embedding, url, title)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (timestamp, chunk, json.dumps(embedding.tolist()), url, title))
+
+        conn.commit()
+        conn.close()
+        logging.info(f"Website chunks saved to the database for URL: {url}")
+
+    def get_website_chunks(self, url=None):
+        """
+        Retrieve website chunks from the database, optionally filtered by URL.
+        """
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            if url:
+                cursor.execute("SELECT chunk FROM website_chunks WHERE url = ?", (url,))
+            else:
+                cursor.execute("SELECT chunk FROM website_chunks")
+            rows = cursor.fetchall()
+            conn.close()
+            return [row[0] for row in rows]  # Return the list of website chunks
+        except Exception as e:
+            logging.error(f"Error retrieving website chunks from the database: {str(e)}")
+            return []
+
+    def find_most_relevant_chunk(self, query, url=None):
+        """
+        Find the most relevant chunk based on the query using vector search.
+        """
+        # Retrieve website chunks (optionally filtered by URL)
+        chunks = self.get_website_chunks(url)
+
+        if not chunks:
+            logging.warning("No website chunks found in the database.")
+            return None
+
+        # Convert the query into a vector
+        query_embedding = self.memory_handler.sentence_to_vec(query)
+
+        # Retrieve embeddings for all chunks
+        chunk_embeddings = [self.memory_handler.sentence_to_vec(chunk) for chunk in chunks]
+
+        # Calculate cosine similarity between the query and each chunk
+        similarities = [cosine_similarity([query_embedding], [embedding])[0][0] for embedding in chunk_embeddings]
+
+        # Find the index of the most relevant chunk
+        most_relevant_index = np.argmax(similarities)
+        return chunks[most_relevant_index]
+
+    def process_query(self, user_message):
+        """
+        Process a user query by detecting URLs, scraping websites, and generating a response.
+        """
+        try:
+            # Check if the user message contains a URL
+            if self.is_url(user_message):
+                url = self.extract_url(user_message)
+                if url:
+                    # Scrape the website and save the content to the database
+                    if not self.scrape_and_save_website(url):
+                        return "Failed to scrape the website. Please try again."
+
+                    # Notify the user that the website has been scraped
+                    return "Website scraped successfully. Please ask your question about the content."
+
+            # If no URL is found, process the query using the most relevant chunk
+            relevant_chunk = self.find_most_relevant_chunk(user_message)
+
+            if not relevant_chunk:
+                return "No relevant content found. Please scrape a website first."
+
+            # Truncate the chunk if necessary to stay within token limits
+            truncated_chunk = self.truncate_text(relevant_chunk, max_tokens=2000)
+
+            # Generate a response from the AI model
+            response = self.process_chunks_with_ai([truncated_chunk], user_message)
+
+            return response
+        except Exception as e:
+            logging.error(f"Error processing query: {str(e)}")
+            return "An error occurred while processing your query."
+
+    def process_chunks_with_ai(self, chunks, query):
+        """
+        Process the most relevant chunks with the AI model.
+        """
+        # Combine the chunks into a single context
+        context = "\n\n".join(chunks)
+
+        # Generate a response from the AI model
+        try:
+            completion = self.client.chat.completions.create(
+                model=self.MODEL_NAME,
+                messages=[
+                    {"role": "system", "content": "You are an AI assistant. Respond naturally and conversationally."},
+                    {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {query}"}
+                ],
+                extra_headers={"HTTP-Referer": "your_site_url", "X-Title": "your_app_name"}
+            )
+            if completion.choices and completion.choices[0].message:
+                response_message = completion.choices[0].message.content
+                return response_message
+            else:
+                logging.error("Error processing query: No message found in API response.")
+                return None
+        except Exception as e:
+            logging.error(f"Error processing query: {str(e)}")
+            return None
+
+    def truncate_text(self, text, max_tokens=2000):
+        """
+        Truncate the text to ensure it stays within the token limit.
+        """
+        words = text.split()
+        if len(words) > max_tokens:
+            truncated_text = " ".join(words[:max_tokens])
+            return truncated_text + "..."  # Add ellipsis to indicate truncation
+        return text
+# END OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\conversation_manager.py
+
+
+# START OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\file_picker.py
+import os
+import tkinter as tk
+from tkinter import filedialog
+import logging
+import chardet
+import PyPDF2
+import docx
+import csv
+import threading
+import customtkinter as ctk
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+
+# Set up logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+
+class FilePicker:
+    def __init__(self, conversation_manager, file_picker_button):
+        """
+        Initialize the FilePicker with a reference to the ConversationManager and the file picker button.
+        """
+        self.conversation_manager = conversation_manager
+        self.file_picker_button = file_picker_button  # Pass the button from ChatbotButtons
+        self.progress_bar = None
+
+    def pick_file(self):
+        """
+        Open a file dialog to select a file, read its content, and process it as a message.
+        """
+        root = tk.Tk()
+        root.withdraw()
+        file_path = filedialog.askopenfilename(title="Select a file to upload")
+        if file_path:
+            try:
+                # Convert the button to a progress bar
+                self.file_picker_button.configure(text="Processing...", fg_color="#000000", hover=False)
+                self.file_picker_button.update()
+
+                # Process the file in a separate thread
+                threading.Thread(target=self.process_file, args=(file_path,)).start()
+            except Exception as e:
+                logging.error(f"Error processing file: {str(e)}")
+                # Display the error message in the chatbot UI
+                self.conversation_manager.chatbot_ui.widgets['text_box'].configure(state="normal")
+                self.conversation_manager.chatbot_ui.widgets['text_box'].insert('end', f"Error processing file: {str(e)}\n", "assistant")
+                self.conversation_manager.chatbot_ui.widgets['text_box'].configure(state="disabled")
+                self.conversation_manager.chatbot_ui.widgets['text_box'].yview('end')
+                self.restore_button()
+
+    def process_file(self, file_path):
+        """
+        Process the file into separate chunks, generate embeddings, and save them to the database.
+        """
+        try:
+            # Read the file content
+            content = self.read_file_content(file_path)
+            file_name = os.path.basename(file_path)
+
+            # Split the content into chunks
+            total_words = len(content.split())
+            chunk_size = max(1, len(content.split()) // 10)  # Split into 10 chunks
+            chunks = [content[i:i + chunk_size] for i in range(0, len(content), chunk_size)]
+
+            # Add file-level identifiers to the first and last chunks
+            if chunks:
+                # Add start identifier to the first chunk
+                chunks[0] = f"--- Start of File: {file_name} ---\n{chunks[0]}"
+                # Add end identifier to the last chunk
+                chunks[-1] = f"{chunks[-1]}\n--- End of File: {file_name} ---"
+
+            # Update progress bar for gathering chunks
+            for i, _ in enumerate(chunks):
+                progress = (i + 1) / len(chunks) * 0.5  # First 50% for gathering
+                self.file_picker_button.configure(text=f"Processing... {int(progress * 100)}%")
+                self.file_picker_button.update()
+
+            # Stage 2: Generate embeddings and save chunks to the database
+            self.conversation_manager.save_chunks_to_db(chunks, file_name)
+            self.file_picker_button.configure(text="Processing... 100%")
+            self.file_picker_button.update()
+        finally:
+            # Restore the button after processing is complete
+            self.restore_button()
+
+    def restore_button(self):
+        """
+        Restore the file picker button after processing is complete.
+        """
+        self.file_picker_button.configure(text="Update Memory", fg_color="#000000", hover=True)
+        self.file_picker_button.update()
+
+    def detect_encoding(self, file_path):
+        """
+        Detect the encoding of a file.
+        """
+        with open(file_path, 'rb') as file:
+            raw_data = file.read()
+            result = chardet.detect(raw_data)
+            return result['encoding']
+
+    def read_file_content(self, file_path):
+        """
+        Read the content of a file based on its extension.
+        """
+        file_extension = os.path.splitext(file_path)[1].lower()
+        if file_extension == '.pdf':
+            with open(file_path, 'rb') as file:
+                reader = PyPDF2.PdfReader(file)
+                content = ""
+                for page in reader.pages:
+                    content += page.extract_text()
+            return content
+        elif file_extension == '.docx':
+            doc = docx.Document(file_path)
+            content = "\n".join([para.text for para in doc.paragraphs])
+            return content
+        elif file_extension == '.txt':
+            encoding = self.detect_encoding(file_path)
+            with open(file_path, 'r', encoding=encoding) as file:
+                content = file.read()
+            return content
+        elif file_extension == '.csv':
+            encoding = self.detect_encoding(file_path)
+            with open(file_path, 'r', encoding=encoding) as file:
+                reader = csv.reader(file)
+                content = "\n".join([",".join(row) for row in reader])
+            return content
+        elif file_extension in ['.py', '.js', '.java', '.html', '.css', '.cpp', '.c', '.sh', '.sql']:
+            encoding = self.detect_encoding(file_path)
+            with open(file_path, 'r', encoding=encoding) as file:
+                content = file.read()
+            return content
+        else:
+            raise ValueError(f"Unsupported file type: {file_extension}")
+
+    def process_query(self, query):
+        """
+        Process a user query by finding the most relevant chunk and sending it to the AI model.
+        """
+        # Retrieve all chunks from the database
+        chunks = self.conversation_manager.get_all_chunks()
+
+        # Find the most relevant chunk(s) using vector search
+        relevant_chunks = self.find_most_relevant_chunk(query, chunks)
+
+        # Truncate or summarize the chunk(s) if necessary to stay within token limits
+        truncated_chunks = [self.truncate_text(chunk, max_tokens=2000) for chunk in relevant_chunks]
+
+        # Send the truncated chunk(s) to the AI model for processing
+        response = self.conversation_manager.process_chunks_with_ai(truncated_chunks, query)
+
+        return response
+
+    def find_most_relevant_chunk(self, query, chunks):
+        """
+        Find the most relevant chunk of the file based on the query using vector search.
+        Only the top N most relevant chunks are returned for efficiency.
+        """
+        # Convert the query into a vector
+        query_embedding = self.conversation_manager.memory_handler.sentence_to_vec(query)
+
+        # Retrieve embeddings for all chunks
+        chunk_embeddings = [self.conversation_manager.memory_handler.sentence_to_vec(chunk) for chunk in chunks]
+
+        # Calculate cosine similarity between the query and each chunk
+        similarities = [cosine_similarity([query_embedding], [embedding])[0][0] for embedding in chunk_embeddings]
+
+        # Find the indices of the top N most relevant chunks
+        top_n = 1  # Only return the most relevant chunk to stay within token limits
+        top_indices = np.argsort(similarities)[-top_n:][::-1]
+
+        # Return the most relevant chunk(s)
+        return [chunks[i] for i in top_indices]
+
+    def truncate_text(self, text, max_tokens=2000):
+        """
+        Truncate the text to ensure it stays within the token limit.
+        """
+        words = text.split()
+        if len(words) > max_tokens:
+            truncated_text = " ".join(words[:max_tokens])
+            return truncated_text + "..."  # Add ellipsis to indicate truncation
+        return text
+# END OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\file_picker.py
+
+
+# START OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\init.py
+
+# END OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\init.py
+
+
+# START OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\memory_handler.py
+import os
+import logging
+import numpy as np
+from gensim.models import Word2Vec
+from gensim.utils import simple_preprocess
+
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
+)
+
+class MemoryHandler:
+    def __init__(self, memory_dir):
+        """
+        Initialize the MemoryHandler with a specific memory directory.
+        The Word2Vec model will be saved in the conversation-specific subfolder.
+        """
+        self.memory_dir = memory_dir
+        self.model_path = os.path.join(self.memory_dir, "word2vec.model")
+        self.word2vec_model = None
+        self.vector_size = 100  # Ensure this matches the Word2Vec model's vector size
+        self.load_or_train_word2vec_model()
+
+    def load_or_train_word2vec_model(self):
+        """
+        Load the Word2Vec model if it exists in the conversation-specific directory, otherwise train a new one.
+        """
+        if os.path.exists(self.model_path):
+            logging.info("Loading existing Word2Vec model.")
+            self.word2vec_model = Word2Vec.load(self.model_path)
+        else:
+            logging.info("Training new Word2Vec model.")
+            # Train a new Word2Vec model with default data
+            sentences = [["default", "sentence", "for", "training"]]
+            self.word2vec_model = Word2Vec(sentences, vector_size=self.vector_size, window=5, min_count=1, workers=4)
+            self.word2vec_model.save(self.model_path)
+
+    def sentence_to_vec(self, sentence):
+        """
+        Convert a sentence to a vector using Word2Vec.
+        Ensure an embedding is always generated, even for short or single-word messages.
+        """
+        if not self.word2vec_model:
+            logging.error("Word2Vec model is not loaded.")
+            return None
+
+        try:
+            # Preprocess the sentence into words
+            words = simple_preprocess(sentence)
+            if not words:  # If no words are found, use the entire sentence as a single word
+                words = [sentence.strip()]
+
+            # Generate vectors for each word in the sentence
+            vectors = []
+            for word in words:
+                if word in self.word2vec_model.wv:
+                    vectors.append(self.word2vec_model.wv[word])
+                else:
+                    # If the word is not in the vocabulary, generate a random vector
+                    vectors.append(np.random.rand(self.vector_size))
+
+            if vectors:
+                # Return the average of all word vectors
+                return np.mean(vectors, axis=0)
+            else:
+                # If no valid words are found, return a zero vector
+                logging.warning("No valid words found in the sentence for Word2Vec. Returning a zero vector.")
+                return np.zeros(self.vector_size)
+        except Exception as e:
+            logging.error(f"Error converting sentence to vector: {str(e)}")
+            return np.zeros(self.vector_size)
+
+    def update_word2vec_model(self, new_sentences):
+        """
+        Update the Word2Vec model with new sentences.
+        """
+        if not self.word2vec_model:
+            logging.error("Word2Vec model is not loaded.")
+            return
+
+        try:
+            # Ensure new_sentences is a list of tokenized sentences (list of lists of words)
+            if not isinstance(new_sentences, list) or not all(isinstance(sentence, list) for sentence in new_sentences):
+                raise ValueError("new_sentences must be a list of tokenized sentences (list of lists of words).")
+
+            # Update the Word2Vec model with new sentences
+            self.word2vec_model.build_vocab(new_sentences, update=True)
+            self.word2vec_model.train(new_sentences, total_examples=len(new_sentences), epochs=10)
+            self.word2vec_model.save(self.model_path)
+            logging.info("Word2Vec model updated with new sentences.")
+        except Exception as e:
+            logging.error(f"Error updating Word2Vec model: {str(e)}")
+# END OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\memory_handler.py
+
+
+# START OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\typestreaming.py
+import os
+import datetime
+import csv
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+from openai import OpenAI as Client
+
+class ConversationEventHandler(FileSystemEventHandler):
+    def __init__(self, manager):
+        self.manager = manager
+
+    def on_modified(self, event):
+        if event.src_path == self.manager.conversation_csv_path:
+            self.manager.process_new_messages()
+
+class ConversationManager:
+    def __init__(self):
+        self.memory_dir = os.path.join(os.path.dirname(__file__), "Memory")
+        os.makedirs(self.memory_dir, exist_ok=True)
+        self.conv_folder = None
+        self.conversation_csv_path = None
+        self.context = []
+        self.unique_entries = set()
+        self.MODEL_NAME = "gpt-4"
+        self.OPEN_ROUTER_API_KEY = None
+        self.client = None
+        self.observer = None
+        self.last_modified_time = None
+
+        self.init_conversation()
+
+    def init_conversation(self):
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.conv_folder = os.path.join(self.memory_dir, f"memory_{timestamp}")
+        os.makedirs(self.conv_folder, exist_ok=True)
+        self.conversation_csv_path = os.path.join(self.conv_folder, "conversations.csv")
+        
+        if not os.path.exists(self.conversation_csv_path):
+            with open(self.conversation_csv_path, "w", encoding='utf-8', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(["Timestamp", "Message", "Summary"])
+        self.load_conversation_from_csv()
+        self.start_watching_file()
+
+    def load_conversation_from_csv(self):
+        current_modified_time = os.path.getmtime(self.conversation_csv_path)
+        if self.last_modified_time is None or self.last_modified_time < current_modified_time:
+            self.last_modified_time = current_modified_time
+            self.context = []
+            self.unique_entries = set()
+            if os.path.exists(self.conversation_csv_path):
+                with open(self.conversation_csv_path, "r", encoding='utf-8', newline='') as f:
+                    reader = csv.reader(f)
+                    next(reader)  # Skip header row
+                    for row in reader:
+                        timestamp = row[0]
+                        message = row[1]
+                        summary = row[2]
+                        entry_key = (timestamp, message)
+                        if entry_key not in self.unique_entries:
+                            self.unique_entries.add(entry_key)
+                            self.context.append((timestamp, message, summary))
+
+    def append_to_conversation(self, user_query, ai_response=None, timestamp=None):
+        if not timestamp:
+            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        if ai_response is not None:
+            combined_message = f"User: {user_query}\nAI: {ai_response}"
+        else:
+            combined_message = f"User: {user_query}"
+        
+        summary = self.summarize(combined_message)
+        
+        entry_key = (timestamp, combined_message)
+        if entry_key not in self.unique_entries:
+            self.unique_entries.add(entry_key)
+            self.context.append((timestamp, combined_message, summary))
+            self.save_conversation_to_csv(combined_message, summary, timestamp)
+
+    def summarize(self, message):
+        if len(message.split()) <= 50:
+            return message
+        
+        summary_prompt = f"Summarize the following message in 50 words or less:\n\n{message}"
+        
+        try:
+            completion = self.client.chat.completions.create(
+                model=self.MODEL_NAME,
+                messages=[
+                    {"role": "system", "content": "You are an AI assistant tasked with summarizing messages."},
+                    {"role": "user", "content": summary_prompt}
+                ],
+                extra_headers={
+                    "HTTP-Referer": "your_site_url",  # Replace with your site URL
+                    "X-Title": "your_app_name",       # Replace with your app name
+                }
+            )
+            if completion.choices and completion.choices[0].message:
+                return completion.choices[0].message.content.strip()
+            else:
+                print("Error summarizing message: No message found in API response.")
+                return message
+        except Exception as e:
+            print(f"Error summarizing message: {str(e)}")
+            return message
+
+    def process_query(self, user_message):
+        self.load_conversation_from_csv()
+
+        self.append_to_conversation(user_message)
+
+        conversation_history = [
+            {"role": "system", "content": "You are an AI assistant. I will remember our conversation and provide relevant responses based on previous interactions."}
+        ]
+
+        for timestamp, message, summary in self.context:
+            if "\n" in message:
+                user_part, ai_part = message.split("\n", 1)
+                user_part = user_part.replace("User: ", "").strip()
+                ai_part = ai_part.replace("AI: ", "").strip()
+                conversation_history.append({"role": "user", "content": user_part})
+                conversation_history.append({"role": "assistant", "content": ai_part})
+            else:
+                user_part = message.replace("User: ", "").strip()
+                conversation_history.append({"role": "user", "content": user_part})
+
+        try:
+            completion = self.client.chat.completions.create(
+                model=self.MODEL_NAME,
+                messages=conversation_history,
+                extra_headers={
+                    "HTTP-Referer": "your_site_url",  # Replace with your site URL
+                    "X-Title": "your_app_name",       # Replace with your app name
+                }
+            )
+            if completion.choices and completion.choices[0].message:
+                response_message = completion.choices[0].message.content
+                self.append_to_conversation(user_message, response_message)
+                return response_message
+            else:
+                print("Error processing query: No message found in API response.")
+                return None
+        except Exception as e:
+            print(f"Error processing query: {str(e)}")
+            return None
+
+    def process_new_messages(self):
+        self.load_conversation_from_csv()
+        self.cleanup_csv()
+
+    def cleanup_csv(self):
+        # Create a temporary file to store valid rows
+        temp_csv_path = self.conversation_csv_path + ".tmp"
+        with open(self.conversation_csv_path, "r", encoding='utf-8', newline='') as f_in, open(temp_csv_path, "w", encoding='utf-8', newline='') as f_out:
+            reader = csv.reader(f_in)
+            writer = csv.writer(f_out)
+            header = next(reader)
+            writer.writerow(header)  # Write the header to the temp file
+            
+            for row in reader:
+                timestamp = row[0]
+                message = row[1]
+                summary = row[2]
+                if "\n" in message:
+                    user_part, ai_part = message.split("\n", 1)
+                    if user_part.strip().startswith("User: ") and ai_part.strip().startswith("AI: "):
+                        writer.writerow(row)
+                else:
+                    # If the row does not contain a newline, it might be a user message without AI response
+                    if message.strip().startswith("User: "):
+                        pass  # Skip this row as it's incomplete
+
+        # Replace the original file with the temp file
+        os.replace(temp_csv_path, self.conversation_csv_path)
+        self.load_conversation_from_csv()
+
+    def clear_conversation(self):
+        if self.conv_folder:
+            for root, dirs, files in os.walk(self.conv_folder, topdown=False):
+                for name in files:
+                    os.remove(os.path.join(root, name))
+                for name in dirs:
+                    os.rmdir(os.path.join(root, name))
+            os.rmdir(self.conv_folder)
+        
+        self.init_conversation()
+        self.context = []
+        self.unique_entries = set()
+
+    def set_model_name(self, model_name):
+        self.MODEL_NAME = model_name
+        self.update_client()
+
+    def set_openrouter_api_key(self, api_key):
+        self.OPEN_ROUTER_API_KEY = api_key
+        self.update_client()
+
+    def update_client(self):
+        if self.MODEL_NAME and self.OPEN_ROUTER_API_KEY:
+            self.client = Client(
+                base_url="https://openrouter.ai/api/v1",
+                api_key=self.OPEN_ROUTER_API_KEY,
+            )
+
+    def start_watching_file(self):
+        if self.conversation_csv_path:
+            event_handler = ConversationEventHandler(self)
+            self.observer = Observer()
+            self.observer.schedule(event_handler, os.path.dirname(self.conversation_csv_path), recursive=False)
+            self.observer.start()
+
+    def stop_watching_file(self):
+        if self.observer:
+            self.observer.stop()
+            self.observer.join()
+
+    def save_conversation_to_csv(self, combined_message, summary, timestamp):
+        with open(self.conversation_csv_path, "a", encoding='utf-8', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow([timestamp, combined_message, summary])
+
+# Define the conversation manager instance
+conversation_manager = ConversationManager()
+conversation_manager.set_model_name("gpt-4")  # Set your desired model name
+conversation_manager.set_openrouter_api_key("your_openrouter_api_key")  # Set your OpenRouter API key
+conversation_manager.init_conversation()
+
+# Example usage:
+user_query = "Tell me a story about a brave knight who saved a kingdom from a dragon."
+response = conversation_manager.process_query(user_query)
+print(f"AI Response: {response}")
+# END OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\typestreaming.py
+
+
+# START OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\web_agent.py
+import os
+import logging
+import re
+from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.common.exceptions import TimeoutException, WebDriverException
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import time
+import threading
+from openai import OpenAI
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+from .memory_handler import MemoryHandler  # Import the MemoryHandler for embeddings
+from gensim.utils import simple_preprocess  # Import simple_preprocess for text preprocessing
+import sqlite3
+import datetime
+import json
+
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
+)
+
+# Create a thread lock for safe printing
+print_lock = threading.Lock()
+
+class WebAgent:
+    def __init__(self, conversation_manager):
+        """
+        Initialize the WebAgent with a reference to the ConversationManager.
+        """
+        self.conversation_manager = conversation_manager
+        self.client = OpenAI(
+            base_url="https://openrouter.ai/api/v1",
+            api_key=self.conversation_manager.OPEN_ROUTER_API_KEY,
+        )
+        self.memory_handler = MemoryHandler(self.conversation_manager.memory_dir)  # Initialize MemoryHandler
+
+    def is_url(self, text):
+        """
+        Check if the input text is a URL using a regular expression.
+        """
+        url_pattern = re.compile(
+            r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+        )
+        return bool(url_pattern.search(text))
+
+    def extract_urls(self, text):
+        """
+        Extract all URLs from the input text.
+        """
+        url_pattern = re.compile(
+            r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+        )
+        return url_pattern.findall(text)
+
+    def scrape_url(self, url):
+        """
+        Scrape a single URL using Selenium.
+        """
+        chrome_options = Options()
+        chrome_options.add_argument("--disable-gpu")
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--disable-dev-shm-usage")
+
+        try:
+            driver = webdriver.Chrome(options=chrome_options)
+            driver.set_page_load_timeout(30)
+            driver.get(url)
+            time.sleep(5)  # Wait for the page to load
+
+            seo_data = self.scrape_seo_info(driver.page_source, url)
+            driver.quit()
+            return seo_data
+        except (TimeoutException, WebDriverException) as e:
+            logging.error(f"Error scraping URL {url}: {str(e)}")
+            return None
+
+    def scrape_seo_info(self, page_source, url):
+        """
+        Scrape SEO-related information from the given page source and chunk by H2 sections.
+        Also extract headings, paragraphs, lists, and other relevant HTML elements.
+        """
+        try:
+            soup = BeautifulSoup(page_source, 'html.parser')
+            
+            # Extract SEO data
+            seo_data = {
+                'title': soup.title.string if soup.title else "No Title",
+                'meta_description': soup.find('meta', attrs={'name': 'description'})['content'] if soup.find('meta', attrs={'name': 'description'}) else "No Meta Description",
+                'h1': [h1.text for h1 in soup.find_all('h1')],
+                'h2': [h2.text for h2 in soup.find_all('h2')],
+                'h3': [h3.text for h3 in soup.find_all('h3')],
+                'h4': [h4.text for h4 in soup.find_all('h4')],
+                'h5': [h5.text for h5 in soup.find_all('h5')],
+                'h6': [h6.text for h6 in soup.find_all('h6')],
+                'paragraphs': [p.text for p in soup.find_all('p')],
+                'unordered_lists': [ul.text for ul in soup.find_all('ul')],
+                'ordered_lists': [ol.text for ol in soup.find_all('ol')],
+                'image_alt_texts': [img['alt'] for img in soup.find_all('img') if img.get('alt')],
+                'internal_links': [a['href'] for a in soup.find_all('a', href=True) if a['href'].startswith('/') or url in a['href']],
+                'external_links': [a['href'] for a in soup.find_all('a', href=True) if not a['href'].startswith('/') and url not in a['href']],
+                'canonical': soup.find('link', rel='canonical')['href'] if soup.find('link', rel='canonical') else "No Canonical URL",
+                'robots': soup.find('meta', attrs={'name': 'robots'})['content'] if soup.find('meta', attrs={'name': 'robots'}) else "No Robots Meta",
+                'word_count': len(soup.get_text().split())
+            }
+
+            # Chunk the content by H2 sections
+            h2_sections = []
+            current_h2 = None
+            current_content = []
+
+            for element in soup.find_all(['h2', 'p', 'ul', 'ol']):
+                if element.name == 'h2':
+                    if current_h2:
+                        h2_sections.append({
+                            'header': current_h2,
+                            'content': "\n".join(current_content)
+                        })
+                        current_content = []
+                    current_h2 = element.text.strip()
+                elif element.name in ['p', 'ul', 'ol']:
+                    current_content.append(element.text.strip())
+
+            # Add the last section
+            if current_h2:
+                h2_sections.append({
+                    'header': current_h2,
+                    'content': "\n".join(current_content)
+                })
+
+            # Generate embeddings for the scraped content
+            print("Processing Word2Vec embeddings with the SEO content...")
+            embeddings = []
+            for section in h2_sections:
+                embedding = self.memory_handler.sentence_to_vec(section['content'])
+                embeddings.append(embedding)
+
+            # Update the Word2Vec model with the scraped content
+            sentences = [simple_preprocess(section['content']) for section in h2_sections]
+            self.memory_handler.update_word2vec_model(sentences)
+
+            return {
+                'seo_data': seo_data,
+                'h2_sections': h2_sections,  # Chunked content by H2 sections
+                'embeddings': embeddings  # Embeddings for each section
+            }
+        except Exception as e:
+            logging.error(f"Error scraping SEO info: {str(e)}")
+            return None
+
+    def process_urls(self, urls):
+        """
+        Process a list of URLs concurrently.
+        """
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            futures = {executor.submit(self.scrape_url, url): url for url in urls}
+            for future in as_completed(futures):
+                url = futures[future]
+                try:
+                    data = future.result()
+                    if data:  # Only process if data is not None
+                        # Save the scraped data to the database
+                        self.save_seo_data(url, data)
+                        yield url, data  # Yield the URL and scraped data
+                    else:
+                        logging.error(f"No data returned for URL: {url}")
+                except Exception as e:
+                    logging.error(f"Error processing URL {url}: {str(e)}")
+
+    def save_seo_data(self, url, data):
+        """
+        Save the scraped SEO data and raw content (in Markdown format) to the database.
+        Treat each scrape as new, even if the URL has been scraped before.
+        """
+        # Convert the scraped content to detailed Markdown format
+        markdown_content = self.convert_to_markdown(data)
+
+        # Generate Word2Vec embeddings for the Markdown content
+        embedding = self.memory_handler.sentence_to_vec(markdown_content)
+
+        # Save the combined content to the database
+        conn = sqlite3.connect(self.conversation_manager.db_path)
+        cursor = conn.cursor()
+
+        # Insert the scraped content into the database
+        cursor.execute('''
+            INSERT INTO conversations (timestamp, user_message, ai_response, message_summary, embedding)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (
+            datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),  # Timestamp
+            markdown_content,  # User message (the scraped content)
+            "URL scraped and saved as Markdown.",  # AI response (single line)
+            "Scraped SEO data.",  # Message summary
+            json.dumps(embedding.tolist()) if embedding is not None else None  # Embedding
+        ))
+        conn.commit()
+        conn.close()
+        logging.info(f"SEO data and raw content saved to the database for URL: {url}")
+
+    def convert_to_markdown(self, data):
+        """
+        Convert the scraped content to detailed Markdown format.
+        """
+        markdown_content = []
+        seo_data = data.get("seo_data", {})
+        h2_sections = data.get("h2_sections", [])
+
+        # Add title
+        if seo_data.get("title"):
+            markdown_content.append(f"# {seo_data['title']}\n")
+
+        # Add meta description
+        if seo_data.get("meta_description"):
+            markdown_content.append(f"**Meta Description:** {seo_data['meta_description']}\n")
+
+        # Add H2 sections
+        if h2_sections:
+            for section in h2_sections:
+                markdown_content.append(f"## {section['header']}\n")
+                markdown_content.append(f"{section['content']}\n")
+
+        return "\n".join(markdown_content)
+
+    def get_headings_in_order(self, url):
+        """
+        Retrieve the headings of the article in order.
+        """
+        # Retrieve the scraped data for the URL
+        scraped_data = self.conversation_manager.get_scraped_data(url)
+        if not scraped_data:
+            return "No data found for this URL."
+
+        # Extract headings in order
+        headings = []
+        for section in scraped_data['h2_sections']:
+            headings.append(section['header'])
+
+        return headings
+
+    def get_key_points(self, url):
+        """
+        Extract key points from the article.
+        """
+        # Retrieve the scraped data for the URL
+        scraped_data = self.conversation_manager.get_scraped_data(url)
+        if not scraped_data:
+            return "No data found for this URL."
+
+        # Extract key points from the first sentence of each section
+        key_points = []
+        for section in scraped_data['h2_sections']:
+            first_sentence = section['content'].split(".")[0].strip()
+            if first_sentence:
+                key_points.append(f"- {first_sentence}")
+
+        return key_points
+
+    def answer_question_about_article(self, query, url):
+        """
+        Answer a question about the article by referring to the most relevant section.
+        """
+        # Retrieve the scraped data for the URL
+        scraped_data = self.conversation_manager.get_scraped_data(url)
+        if not scraped_data:
+            return "No data found for this URL."
+
+        # Find the most relevant section based on the query
+        relevant_section = self.find_most_relevant_section(query, scraped_data['embeddings'], scraped_data['h2_sections'])
+        if relevant_section:
+            return f"Here's the most relevant section from the article:\n\n**{relevant_section['header']}**\n{relevant_section['content']}"
+        else:
+            return "No relevant section found for your query."
+
+    def find_most_relevant_section(self, query, embeddings, h2_sections):
+        """
+        Find the most relevant section based on the query using cosine similarity.
+        """
+        query_embedding = self.memory_handler.sentence_to_vec(query)
+        similarities = []
+
+        for embedding in embeddings:
+            similarity = cosine_similarity([query_embedding], [embedding])[0][0]
+            similarities.append(similarity)
+
+        if similarities:
+            most_relevant_index = np.argmax(similarities)
+            return h2_sections[most_relevant_index]
+        else:
+            return None
+
+    def process_natural_query(self, query, url):
+        """
+        Process a natural language query about the scraped content.
+        """
+        # Retrieve the scraped data for the URL
+        scraped_data = self.conversation_manager.get_scraped_data(url)
+        if not scraped_data:
+            return "No data found for this URL."
+
+        # Find the most relevant section based on the query
+        relevant_section = self.find_most_relevant_section(query, scraped_data['embeddings'], scraped_data['h2_sections'])
+        if relevant_section:
+            return f"Here's the most relevant section from the article:\n\n**{relevant_section['header']}**\n{relevant_section['content']}"
+        else:
+            return "No relevant section found for your query."
+# END OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\web_agent.py
+
+
+# START OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\Appendix\append_scripts.py
+import os
+
+def generate_combined_file(source_dir, output_file):
+    """Generate a combined sitemap and script content file."""
+    supported_extensions = {".py", ".js", ".html", ".css", ".java"}  # Supported script extensions
+    excluded_folders = [
+        os.path.join(source_dir, "brain", "Memory"),
+        os.path.join(source_dir, "Project Overview"),
+        os.path.join(source_dir, "gui")  # Exclude the 'gui' folder
+    ]  # Folders to exclude
+
+    with open(output_file, "w", encoding="utf-8") as outfile:
+        # Step 1: Generate the sitemap
+        outfile.write("No comments # in code, don't print the site map. Only show corrected script. Sitemap of Directory: Odin 2\n")
+        outfile.write("=" * 50 + "\n")
+        for root, dirs, files in os.walk(source_dir):
+            # Skip excluded folders
+            if any(root.startswith(folder) for folder in excluded_folders):
+                continue
+
+            # Write folder name
+            relative_path = os.path.relpath(root, source_dir)
+            outfile.write(f"\n[Folder] {relative_path}\n")
+            outfile.write("-" * 50 + "\n")
+            for file in files:
+                if not file.endswith(".txt"):  # Skip .txt files
+                    file_path = os.path.join(root, file)
+                    outfile.write(f"  {file_path}\n")
+
+        outfile.write("\n" + "=" * 50 + "\n\n")
+
+        # Step 2: Append script contents
+        outfile.write("Script Contents\n")
+        outfile.write("=" * 50 + "\n")
+        for root, _, files in os.walk(source_dir):
+            # Skip excluded folders
+            if any(root.startswith(folder) for folder in excluded_folders):
+                continue
+
+            for file in files:
+                file_path = os.path.join(root, file)
+                # Check file extension
+                if os.path.splitext(file)[1] in supported_extensions:
+                    try:
+                        with open(file_path, "r", encoding="utf-8") as infile:
+                            # Write a header for each file
+                            outfile.write(f"\n# START OF FILE: {file_path}\n")
+                            outfile.write(infile.read())
+                            outfile.write(f"\n# END OF FILE: {file_path}\n\n")
+                            print(f"Appended: {file_path}")
+                    except Exception as e:
+                        print(f"Error reading {file_path}: {e}")
+
+if __name__ == "__main__":
+    source_directory = r"C:\Users\Sean Craig\Desktop\AI Python Tools\Odin"
+    output_file_path = r"C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\Appendix\combined_sitemap_and_scripts.txt"
+    
+    generate_combined_file(source_directory, output_file_path)
+    print(f"\nSitemap and script contents have been saved to {output_file_path}")
+
+# END OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\brain\Appendix\append_scripts.py
+
+
+# START OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\gui\app.py
+from .chatbot_ui import ChatbotUI
+
+def run_gui_wrapper(container):
+    chatbot_ui = ChatbotUI(container)
+    return chatbot_ui  # Ensure this line is present
+# END OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\gui\app.py
+
+
+# START OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\gui\chatbot_buttons.py
+import customtkinter as ctk
+import os
+import shutil
+from brain.file_picker import FilePicker
+
+class ChatbotButtons:
+    def __init__(self, master, chatbot_ui):
+        self.master = master
+        self.chatbot_ui = chatbot_ui
+
+        # First Row: Update Model and Model Field
+        self.first_row_frame = ctk.CTkFrame(self.master)
+        self.first_row_frame.pack(expand=True, fill=ctk.X, padx=10, pady=(10, 0))
+
+        # Update Model Button
+        self.update_model_button = ctk.CTkButton(
+            self.first_row_frame, 
+            text="Update Model", 
+            command=self.update_model, 
+            width=180,
+            height=50,
+            fg_color="#000000",  
+            corner_radius=0,     
+            font=("Segoe UI", 15)  
+        )
+        self.update_model_button.pack(side=ctk.LEFT, padx=10, pady=10)
+
+        # Text Field for Model Name
+        self.model_name_entry = ctk.CTkEntry(
+            self.first_row_frame, 
+            font=("Segoe UI", 18),
+            placeholder_text=self.chatbot_ui.conversation_manager.MODEL_NAME,
+            height=50,  
+            width=500   
+        )
+        self.model_name_entry.pack(side=ctk.LEFT, padx=(10, 10), pady=10, fill=ctk.X, expand=True)
+
+        # Second Row: New Chat, Clear Chat, Update Memory, and Clear Memories
+        self.second_row_frame = ctk.CTkFrame(self.master)
+        self.second_row_frame.pack(expand=True, fill=ctk.X, padx=10, pady=(0, 10))
+
+        # New Chat Button
+        self.new_conversation_button = ctk.CTkButton(
+            self.second_row_frame, 
+            text="New Chat", 
+            command=self.new_conversation, 
+            width=180,
+            height=50,
+            fg_color="#000000",  
+            corner_radius=0,     
+            font=("Segoe UI", 15)  
+        )
+        self.new_conversation_button.pack(side=ctk.LEFT, padx=10, pady=10)
+
+        # Clear Chat Button
+        self.clear_chat_button = ctk.CTkButton(
+            self.second_row_frame, 
+            text="Clear Chat", 
+            command=self.clear_chat, 
+            width=180,
+            height=50,
+            fg_color="#000000",  
+            corner_radius=0,     
+            font=("Segoe UI", 15)  
+        )
+        self.clear_chat_button.pack(side=ctk.LEFT, padx=10, pady=10)
+
+        # Update Memory Button
+        self.file_picker_button = ctk.CTkButton(
+            self.second_row_frame, 
+            text="Update Memory", 
+            command=self.pick_file, 
+            width=180,
+            height=50,
+            fg_color="#000000",  
+            corner_radius=0,     
+            font=("Segoe UI", 15)  
+        )
+        self.file_picker_button.pack(side=ctk.LEFT, padx=10, pady=10)
+
+        # Initialize the FilePicker with the file_picker_button
+        self.file_picker = FilePicker(self.chatbot_ui.conversation_manager, self.file_picker_button)
+
+        # Clear Memories Button
+        self.clear_memories_button = ctk.CTkButton(
+            self.second_row_frame, 
+            text="Clear Memories", 
+            command=self.clear_memories, 
+            width=180,
+            height=50,
+            fg_color="#000000",  
+            corner_radius=0,     
+            font=("Segoe UI", 15)  
+        )
+        self.clear_memories_button.pack(side=ctk.LEFT, padx=10, pady=10)
+
+    def new_conversation(self):
+        """
+        Start a new conversation.
+        """
+        self.chatbot_ui.conversation_manager.clear_conversation(new_conversation=True)
+        self.chatbot_ui.clear_chat(new_conversation=True)
+
+    def clear_chat(self):
+        """
+        Clear the current chat.
+        """
+        self.chatbot_ui.conversation_manager.clear_conversation(new_conversation=False)
+        self.chatbot_ui.clear_chat(new_conversation=False)
+
+    def clear_memories(self):
+        """
+        Clear all memories.
+        """
+        memory_dir = self.chatbot_ui.conversation_manager.memory_dir
+        if os.path.exists(memory_dir):
+            for folder in os.listdir(memory_dir):
+                folder_path = os.path.join(memory_dir, folder)
+                if os.path.isdir(folder_path):
+                    shutil.rmtree(folder_path)
+            self.chatbot_ui.conversation_manager.init_conversation()
+            self.chatbot_ui.clear_chat(new_conversation=True)
+            self.chatbot_ui.widgets['text_box'].configure(state="normal")
+            self.chatbot_ui.widgets['text_box'].insert('end', "All memories have been cleared.\n", "assistant")
+            self.chatbot_ui.widgets['text_box'].configure(state="disabled")
+            self.chatbot_ui.widgets['text_box'].yview('end')
+        else:
+            self.chatbot_ui.widgets['text_box'].configure(state="normal")
+            self.chatbot_ui.widgets['text_box'].insert('end', "Memory directory not found.\n", "assistant")
+            self.chatbot_ui.widgets['text_box'].configure(state="disabled")
+            self.chatbot_ui.widgets['text_box'].yview('end')
+
+    def update_model(self):
+        """
+        Update the AI model.
+        """
+        new_model_name = self.model_name_entry.get().strip()
+        if new_model_name:
+            self.chatbot_ui.conversation_manager.set_model_name(new_model_name)
+            self.chatbot_ui.clear_chat(new_conversation=False)
+            self.chatbot_ui.widgets['text_box'].configure(state="normal")
+            self.chatbot_ui.widgets['text_box'].insert('end', f"Model updated to {new_model_name}.\n", "assistant")
+            self.chatbot_ui.widgets['text_box'].configure(state="disabled")
+            self.chatbot_ui.widgets['text_box'].yview('end')
+
+    def pick_file(self):
+        """
+        Delegate the file picking functionality to the FilePicker instance.
+        """
+        self.file_picker.pick_file()
+# END OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\gui\chatbot_buttons.py
+
+
+# START OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\gui\chatbot_fields.py
+import customtkinter as ctk
+from .CustomText import CustomText
+
+class ChatbotFields:
+    def __init__(self, master, chatbot_ui):
+        self.master = master
+        self.chatbot_ui = chatbot_ui
+
+        self.text_frame = ctk.CTkFrame(self.master)
+        self.text_frame.pack(pady=10, padx=10, fill=ctk.BOTH, expand=True)
+
+        self.text_box = CustomText(self.text_frame)
+        self.text_box.pack(pady=10, padx=10, fill='both', expand=True)
+
+        self.scrollbar = ctk.CTkScrollbar(self.text_frame, command=self.text_box.yview)
+        self.scrollbar.pack(side='right', fill='y')
+
+        self.text_box.config(yscrollcommand=self.scrollbar.set)
+
+        self.entry_frame = ctk.CTkFrame(self.master)
+        self.entry_frame.pack(fill=ctk.X, padx=10, pady=(0, 10))
+
+        self.entry = ctk.CTkTextbox(self.entry_frame, height=100)
+        self.entry.pack(pady=10, padx=10, fill=ctk.X, expand=True)
+        self.entry.bind("<Return>", self.chatbot_ui.send_message_from_key)
+        self.entry.bind("<KeyRelease>", self.chatbot_ui.prevent_multiline)
+# END OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\gui\chatbot_fields.py
+
+
+# START OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\gui\chatbot_ui.py
+# chatbot_ui.py
+import customtkinter as ctk
+from brain.ai_memory import conversation_manager
+import threading
+import queue
+import logging
+from .CustomText import CustomText
+from .stream_response import stream_response
+
+# Set up logging
+logging.basicConfig(level=logging.DEBUG)
+
+class ChatbotUI:
+    def __init__(self, master):
+        self.master = master
+        self.conversation_manager = conversation_manager
+        self.widgets = {
+            'text_box': None,
+            'scrollbar': None,
+            'entry': None,
+            'top_frame': None,
+            'text_frame': None,
+            'entry_frame': None,
+        }
+        self.response_queue = queue.Queue()
+        self.stop_streaming = False
+        self.streaming_thread = None
+        self.lock = threading.Lock()
+        self.create_widgets()
+
+        # Ensure the conversation_manager has a reference to this ChatbotUI instance
+        self.conversation_manager.chatbot_ui = self
+
+    def create_widgets(self):
+        self.initialize_top_frame()
+        self.initialize_text_frame()
+        self.initialize_entry_frame()
+
+    def initialize_top_frame(self):
+        from .chatbot_buttons import ChatbotButtons
+        self.widgets['top_frame'] = ctk.CTkFrame(self.master)
+        self.widgets['top_frame'].pack(expand=False, fill=ctk.X, padx=(5, 10), pady=10)
+        ChatbotButtons(self.widgets['top_frame'], self)
+
+    def initialize_text_frame(self):
+        self.widgets['text_frame'] = ctk.CTkFrame(self.master)
+        self.widgets['text_frame'].pack(pady=0, padx=10, fill=ctk.BOTH, expand=True)
+        self.widgets['text_frame'].grid_rowconfigure(0, weight=1)
+        self.widgets['text_frame'].grid_columnconfigure(0, weight=1)
+        self.widgets['text_frame'].grid_columnconfigure(1, weight=0)
+
+        self.widgets['text_box'] = CustomText(self.widgets['text_frame'])
+        self.widgets['text_box'].grid(row=0, column=0, sticky="nsew")
+
+        self.widgets['scrollbar'] = ctk.CTkScrollbar(self.widgets['text_frame'])
+        self.widgets['scrollbar'].grid(row=0, column=1, sticky="ns")
+        self.widgets['text_box'].configure(yscrollcommand=self.widgets['scrollbar'].set)
+
+    def initialize_entry_frame(self):
+        self.widgets['entry_frame'] = ctk.CTkFrame(self.master)
+        self.widgets['entry_frame'].pack(fill=ctk.X, padx=(5, 10), pady=10)
+
+        self.widgets['entry'] = ctk.CTkTextbox(self.widgets['entry_frame'], height=100)
+        self.widgets['entry'].pack(pady=0, padx=5, fill=ctk.X, expand=True)
+
+        self.widgets['entry'].bind("<Return>", self.send_message_from_key)
+        self.widgets['entry'].bind("<KeyRelease>", self.prevent_multiline)
+
+    def prevent_multiline(self, event):
+        if event.keysym == "Return":
+            self.widgets['entry'].delete("insert", "end lineend")
+
+    def send_message_from_key(self, event):
+        if event.keysym == "Return":
+            user_message = self.widgets['entry'].get("1.0", "end-1c").strip()
+            if user_message:
+                self.send_message(user_message)
+                self.widgets['entry'].delete("1.0", "end")
+
+    def send_message(self, user_message):
+        self.stop_streaming = True
+        if self.streaming_thread and self.streaming_thread.is_alive():
+            self.streaming_thread.join()
+        self.stop_streaming = False
+        self.display_user_message(user_message)
+        with self.response_queue.mutex:
+            self.response_queue.queue.clear()
+        self.streaming_thread = threading.Thread(target=stream_response, args=(self, user_message))
+        self.streaming_thread.start()
+        self.master.after(100, self.check_response_queue)
+
+    def check_response_queue(self):
+        try:
+            response = self.response_queue.get(block=False)
+            if response is None:
+                self.display_response({"type": "text", "content": ""}, end_with_newline=True)
+            else:
+                if not self.stop_streaming:
+                    self.display_response(response, end_with_newline=False)
+            self.master.after(100, self.check_response_queue)
+        except queue.Empty:
+            self.master.after(100, self.check_response_queue)
+
+    def display_user_message(self, user_message):
+        with self.lock:
+            self.widgets['text_box'].configure(state="normal")
+            self.widgets['text_box'].insert('end', f"User: {user_message}\n", "user")
+            self.widgets['text_box'].configure(state="disabled")
+            self.widgets['text_box'].yview('end')
+
+    def display_response(self, response, end_with_newline=False):
+        with self.lock:
+            self.widgets['text_box'].configure(state="normal")
+            if response["type"] == "text":
+                content = response['content'].strip()
+                if content:  # Only display non-empty content
+                    self.widgets['text_box'].insert('end', f"{content}\n", "assistant")
+            elif response["type"] == "code":
+                content = response['content'].strip()
+                if content:  # Only display non-empty content
+                    # Insert code with buttons
+                    self.widgets['text_box'].insert_code(content, language=response['language'])
+            elif response["type"] == "buttons":
+                self.widgets['text_box'].insert('end', f"{response['content']}\n", "buttons")
+            self.widgets['text_box'].configure(state="disabled")
+            self.widgets['text_box'].yview('end')
+
+    def display_key_points(self, key_points):
+        """
+        Display the key points from the scraped article in the GUI.
+        """
+        with self.lock:
+            self.widgets['text_box'].configure(state="normal")
+            self.widgets['text_box'].insert('end', "\n**Key Points from the Article:**\n", "assistant")
+            for i, point in enumerate(key_points, 1):
+                self.widgets['text_box'].insert('end', f"{i}. {point}\n", "assistant")
+            self.widgets['text_box'].configure(state="disabled")
+            self.widgets['text_box'].yview('end')
+
+    def clear_chat(self, new_conversation=False):
+        """
+        Clear the chat history in the UI.
+        """
+        self.stop_streaming = True
+        if self.streaming_thread and self.streaming_thread.is_alive():
+            self.streaming_thread.join()
+        with self.response_queue.mutex:
+            self.response_queue.queue.clear()
+        self.widgets['text_box'].configure(state="normal")
+        self.widgets['text_box'].delete(1.0, "end")
+        self.widgets['text_box'].configure(state="disabled")
+        self.widgets['entry'].delete("1.0", "end")
+
+    def stop_current_streaming(self):
+        self.stop_streaming = True
+        if self.streaming_thread and self.streaming_thread.is_alive():
+            self.streaming_thread.join()
+# END OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\gui\chatbot_ui.py
+
+
+# START OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\gui\CustomText.py
+import tkinter as tk  # Add this import statement
+import tkinter.filedialog as filedialog
+import pyperclip
+import sys
+
+class CustomText(tk.Text):
+    def __init__(self, master=None, **kw):
+        super().__init__(master, **kw)
+        self.configure(
+            bg="#282828",
+            fg="#FFFFFF",
+            insertbackground="#FFFFFF",
+            padx=0,
+            pady=0,
+            highlightthickness=0,
+            relief='flat',
+            wrap='word'
+        )
+
+        self.tag_configure(
+            "user",
+            background="#343434",
+            foreground="#FFFFFF",
+            font=("Segoe UI", 12),
+            lmargin1=50,
+            lmargin2=50,
+            rmargin=100,
+            wrap='word',
+            spacing1=10,
+            spacing2=0,
+            spacing3=10
+        )
+
+        self.tag_configure(
+            "assistant",
+            background="#1E1E1E",
+            foreground="#FFFFFF",
+            font=("Segoe UI", 12),
+            lmargin1=50,
+            lmargin2=50,
+            rmargin=100,
+            wrap='word',
+            spacing1=10,
+            spacing2=0,
+            spacing3=10
+        )
+
+        self.tag_configure(
+            "code",
+            background="#000000",
+            foreground="#FFFFFF",
+            font=("Courier New", 12),
+            lmargin1=50,
+            lmargin2=50,
+            rmargin=100,
+            wrap='word',
+            spacing1=10,
+            spacing2=0,
+            spacing3=10
+        )
+
+        self.tag_configure(
+            "buttons",
+            background="#000000",
+            foreground="#0078D7",
+            font=("Courier New", 12, "underline"),
+            lmargin1=50,
+            lmargin2=50,
+            rmargin=100,
+            wrap='none',
+            spacing1=10,
+            spacing2=0,
+            spacing3=10
+        )
+
+        self.tag_bind("buttons", "<Button-1>", self.handle_button_click)
+        self.tag_bind("buttons", "<Enter>", self.on_button_enter)
+        self.tag_bind("buttons", "<Leave>", self.on_button_leave)
+
+    def handle_button_click(self, event):
+        index = self.index("@%s,%s" % (event.x, event.y))
+        print(f"Clicked at index: {index}")
+
+        # Find the range of the "buttons" tag at the clicked position
+        button_start = self.index(f"{index} linestart")
+        button_end = self.index(f"{index} lineend")
+        
+        # Get the full text within the "buttons" tag
+        button_text = self.get(button_start, button_end).strip()
+        print(f"Button text: {button_text}")
+
+        # Find the adjacent code block
+        code_start, code_end = self.tag_prevrange("code", index)
+        if code_start and code_end:
+            code_content = self.get(code_start, code_end).strip()
+            print(f"Code content: {code_content}")
+
+            # Extract the language from the code block (if specified)
+            language = self.get_language_from_code_block(code_start)
+            print(f"Detected language: {language}")
+
+            # Remove the backtick lines from the code content
+            cleaned_code_content = self.remove_backtick_lines(code_content)
+            print(f"Cleaned code content: {cleaned_code_content}")
+
+            # Check which button was clicked
+            if "Copy" in button_text and self.is_click_on_word(event, "Copy"):
+                self.copy_code_to_clipboard(cleaned_code_content)
+            elif "Save" in button_text and self.is_click_on_word(event, "Save"):
+                self.save_code_to_file(cleaned_code_content, language)
+        else:
+            print("Error: Could not find the adjacent code block.")
+
+    def is_click_on_word(self, event, word):
+        """
+        Check if the click occurred on a specific word.
+        """
+        index = self.index("@%s,%s" % (event.x, event.y))
+        clicked_word = self.get(index + " wordstart", index + " wordend").strip()
+        return clicked_word == word
+
+    def get_language_from_code_block(self, code_start):
+        """
+        Extract the language from the code block (if specified).
+        """
+        # Get the first line of the code block
+        first_line = self.get(code_start, f"{code_start} lineend").strip()
+        if first_line.startswith("```"):
+            # Extract the language (e.g., ```python -> "python")
+            language = first_line[3:].strip()
+            return language if language else None
+        return None
+
+    def remove_backtick_lines(self, code_content):
+        """
+        Remove the backtick lines from the code content.
+        """
+        lines = code_content.splitlines()
+        cleaned_lines = [line for line in lines if not line.strip().startswith("```")]
+        return "\n".join(cleaned_lines)
+
+    def copy_code_to_clipboard(self, code_content):
+        pyperclip.copy(code_content)
+        print("Codeblock Copied!")
+
+    def save_code_to_file(self, code_content, language=None):
+        """
+        Save the code block to a file with the appropriate file extension based on the language.
+        """
+        # Map languages to file extensions
+        language_to_extension = {
+            "python": ".py",
+            "javascript": ".js",
+            "java": ".java",
+            "html": ".html",
+            "css": ".css",
+            "c": ".c",
+            "cpp": ".cpp",
+            "bash": ".sh",
+            "sql": ".sql",
+            # Add more mappings as needed
+        }
+
+        # Default to .txt if no language is specified
+        file_extension = language_to_extension.get(language, ".txt")
+
+        # Open a file save dialog with the appropriate file extension
+        file_path = filedialog.asksaveasfilename(
+            defaultextension=file_extension,
+            filetypes=[(f"{language or 'Text'} Files", f"*{file_extension}"), ("All Files", "*.*")]
+        )
+
+        if file_path:
+            with open(file_path, "w") as file:
+                file.write(code_content)
+            print(f"Codeblock saved to {file_path}")
+
+    def insert_code(self, code, language=None):
+        """
+        Insert a code block with "Copy" and "Save" buttons, excluding the backtick lines.
+        """
+        # Insert the code content without the backtick lines
+        self.insert('end', f"{code}\n", "code")
+        # Insert the "Copy" and "Save" buttons
+        self.insert('end', "[Copy] [Save]\n", ("buttons",))
+        self.mark_set("insert", "end-2c")
+
+    def on_button_enter(self, event):
+        self.config(cursor="hand2")
+
+    def on_button_leave(self, event):
+        self.config(cursor="")
+# END OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\gui\CustomText.py
+
+
+# START OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\gui\message_parser.py
+# START OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin 2\gui\message_parser.py
+
+# ==================================================
+# CONFIGURATION VARIABLES (Edit these as needed)
+# ==================================================
+INCLUDE_BACKTICKS = False  # True/False: Include the backtick lines (```) in the code block content
+INCLUDE_LANGUAGE = True    # True/False: Include the language specification (e.g., "python") in the code block
+INCLUDE_CODE_CONTENT = True  # True/False: Include the actual code content in the code block
+
+# ==================================================
+# MESSAGE PARSER CLASS
+# ==================================================
+
+class MessageParser:
+    def __init__(self):
+        """
+        Initialize the MessageParser with the global configuration variables.
+        """
+        self.buffer = ""
+        self.in_code_block = False
+        self.code_language = None
+        self.code_block = []
+
+    def parse_response(self, response):
+        parsed_messages = []
+        # Split the response into lines
+        lines = response.split('\n')
+        for line in lines:
+            if line.strip().startswith('```'):
+                # Toggle code block state
+                if self.in_code_block:
+                    # End of code block
+                    code_content = self._build_code_block_content()
+                    if code_content:
+                        parsed_messages.append({
+                            "type": "code",
+                            "content": code_content,
+                            "language": self.code_language
+                        })
+                    self.in_code_block = False
+                    self.code_language = None
+                    self.code_block = []
+                else:
+                    # Start of code block
+                    self.in_code_block = True
+                    # Extract language if present
+                    lang_part = line.strip().lstrip('```')
+                    self.code_language = lang_part if lang_part else None
+            elif self.in_code_block:
+                # Add line to the current code block
+                self.code_block.append(line)
+            else:
+                # Add text line
+                if line.strip():
+                    parsed_messages.append({
+                        "type": "text",
+                        "content": line.strip()
+                    })
+        return parsed_messages
+
+    def _build_code_block_content(self):
+        """
+        Build the code block content based on the selected options.
+
+        Returns:
+            str: The formatted code block content.
+        """
+        content = []
+        if INCLUDE_CODE_CONTENT and self.code_block:
+            if INCLUDE_BACKTICKS:
+                # Add backticks if required
+                content.append('```' + (self.code_language or ''))
+                content.extend(self.code_block)
+                content.append('```')
+            else:
+                content.extend(self.code_block)
+        return "\n".join(content) if content else None
+
+# END OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin 2\gui\message_parser.py
+# END OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\gui\message_parser.py
+
+
+# START OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\gui\stream_response.py
+from .message_parser import MessageParser
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+
+def stream_response(chatbot_ui, user_message):
+    """
+    Stream the AI response to the GUI, ensuring code blocks are displayed simply with a black background.
+    """
+    try:
+        # Process the user message and get the AI response
+        if not hasattr(chatbot_ui.conversation_manager, 'process_query'):
+            logging.error("ConversationManager does not have a 'process_query' method.")
+            chatbot_ui.response_queue.put({"type": "text", "content": "Error: ConversationManager is not properly initialized."})
+            chatbot_ui.response_queue.put(None)  # Signal end of response
+            return
+
+        response = chatbot_ui.conversation_manager.process_query(user_message)
+        if not response:
+            chatbot_ui.response_queue.put({"type": "text", "content": "Error: No response from the AI model."})
+            chatbot_ui.response_queue.put(None)  # Signal end of response
+            return
+
+        # Parse the response into messages
+        parser = MessageParser()
+        parsed_messages = parser.parse_response(response)
+
+        # Send parsed messages to the queue
+        for message in parsed_messages:
+            chatbot_ui.response_queue.put(message)
+
+        chatbot_ui.response_queue.put(None)  # Signal end of response
+
+    except Exception as e:
+        logging.error(f"Error in stream_response: {str(e)}")
+        chatbot_ui.response_queue.put({"type": "text", "content": f"Error: {str(e)}"})
+        chatbot_ui.response_queue.put(None)  # Signal end of response
+# END OF FILE: C:\Users\Sean Craig\Desktop\AI Python Tools\Odin\gui\stream_response.py
+
